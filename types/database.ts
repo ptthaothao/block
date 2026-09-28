@@ -50,6 +50,80 @@ export type Database = {
           },
         ];
       };
+      comments: {
+        Row: {
+          author_id: string;
+          body_md: string;
+          created_at: string;
+          deleted_at: string | null;
+          edited_at: string | null;
+          id: string;
+          is_pinned: boolean;
+          parent_id: string | null;
+          post_id: string;
+          reaction_counts: NonNullable<Json>;
+          reply_count: number;
+          status: Database["public"]["Enums"]["comment_status"];
+        };
+        Insert: {
+          author_id?: string;
+          body_md: string;
+          created_at?: string;
+          deleted_at?: string | null;
+          edited_at?: string | null;
+          id?: string;
+          is_pinned?: boolean;
+          parent_id?: string | null;
+          post_id: string;
+          reaction_counts?: NonNullable<Json>;
+          reply_count?: number;
+          status?: Database["public"]["Enums"]["comment_status"];
+        };
+        Update: {
+          author_id?: string;
+          body_md?: string;
+          created_at?: string;
+          deleted_at?: string | null;
+          edited_at?: string | null;
+          id?: string;
+          is_pinned?: boolean;
+          parent_id?: string | null;
+          post_id?: string;
+          reaction_counts?: NonNullable<Json>;
+          reply_count?: number;
+          status?: Database["public"]["Enums"]["comment_status"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "comments_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey";
+            columns: ["parent_id"];
+            isOneToOne: false;
+            referencedRelation: "comments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey";
+            columns: ["parent_id"];
+            isOneToOne: false;
+            referencedRelation: "moderation_queue";
+            referencedColumns: ["comment_id"];
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "posts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       post_authors: {
         Row: {
           position: number;
@@ -313,6 +387,68 @@ export type Database = {
           },
         ];
       };
+      reports: {
+        Row: {
+          comment_id: string;
+          created_at: string;
+          id: number;
+          note: string | null;
+          reason: Database["public"]["Enums"]["report_reason"];
+          reporter_id: string;
+          resolved_at: string | null;
+          resolved_by: string | null;
+        };
+        Insert: {
+          comment_id: string;
+          created_at?: string;
+          id?: never;
+          note?: string | null;
+          reason: Database["public"]["Enums"]["report_reason"];
+          reporter_id?: string;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+        };
+        Update: {
+          comment_id?: string;
+          created_at?: string;
+          id?: never;
+          note?: string | null;
+          reason?: Database["public"]["Enums"]["report_reason"];
+          reporter_id?: string;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "reports_comment_id_fkey";
+            columns: ["comment_id"];
+            isOneToOne: false;
+            referencedRelation: "comments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reports_comment_id_fkey";
+            columns: ["comment_id"];
+            isOneToOne: false;
+            referencedRelation: "moderation_queue";
+            referencedColumns: ["comment_id"];
+          },
+          {
+            foreignKeyName: "reports_reporter_id_fkey";
+            columns: ["reporter_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reports_resolved_by_fkey";
+            columns: ["resolved_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       series: {
         Row: {
           cover_url: string | null;
@@ -439,7 +575,34 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      moderation_queue: {
+        Row: {
+          author_id: string | null;
+          body_md: string | null;
+          comment_id: string | null;
+          created_at: string | null;
+          open_reports: number | null;
+          post_id: string | null;
+          reasons: Database["public"]["Enums"]["report_reason"][] | null;
+          status: Database["public"]["Enums"]["comment_status"] | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "comments_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "posts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Functions: {
       author_post_counts: {
@@ -456,6 +619,13 @@ export type Database = {
         Returns: {
           category_id: number;
           post_count: number;
+        }[];
+      };
+      create_comment: {
+        Args: { p_body_md: string; p_parent_id: string; p_post_id: string };
+        Returns: {
+          id: string;
+          status: Database["public"]["Enums"]["comment_status"];
         }[];
       };
       filter_posts: {
@@ -494,6 +664,13 @@ export type Database = {
         }[];
       };
       immutable_unaccent: { Args: { "": string }; Returns: string };
+      list_comment_threads: {
+        Args: { p_limit?: number; p_offset?: number; p_post_id: string; p_sort?: string };
+        Returns: {
+          id: string;
+          total_count: number;
+        }[];
+      };
       merge_tags: { Args: { p_source: number; p_target: number }; Returns: undefined };
       my_reactions: {
         Args: { p_target_ids: string[]; p_target_type: Database["public"]["Enums"]["reaction_target"] };
@@ -531,11 +708,13 @@ export type Database = {
       };
     };
     Enums: {
+      comment_status: "visible" | "pending" | "hidden";
       interest_target: "category" | "tag" | "author";
       post_level: "beginner" | "intermediate" | "advanced";
       post_status: "draft" | "review" | "published" | "archived";
       reaction_kind: "helpful" | "love" | "mindblown" | "confused";
       reaction_target: "post" | "comment";
+      report_reason: "spam" | "offensive" | "off_topic" | "other";
       tag_status: "pending" | "approved";
       user_role: "reader" | "author" | "editor" | "admin";
     };
@@ -647,11 +826,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      comment_status: ["visible", "pending", "hidden"],
       interest_target: ["category", "tag", "author"],
       post_level: ["beginner", "intermediate", "advanced"],
       post_status: ["draft", "review", "published", "archived"],
       reaction_kind: ["helpful", "love", "mindblown", "confused"],
       reaction_target: ["post", "comment"],
+      report_reason: ["spam", "offensive", "off_topic", "other"],
       tag_status: ["pending", "approved"],
       user_role: ["reader", "author", "editor", "admin"],
     },
