@@ -7,7 +7,7 @@ select plan(27);
 
 -- Fixtures -------------------------------------------------------------------
 -- Start from empty tables so counts don't depend on seed.sql. Rolled back at the end.
-truncate public.post_tags, public.post_authors, public.posts, public.tags, public.series, public.categories cascade;
+truncate public.reactions, public.post_tags, public.post_authors, public.posts, public.tags, public.series, public.categories cascade;
 delete from auth.users;
 
 insert into auth.users (id, email, raw_user_meta_data) values

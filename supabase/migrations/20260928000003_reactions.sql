@@ -114,7 +114,8 @@ begin
 
   if changed.target_type = 'post' then
     insert into public.post_stats as s (post_id, reaction_counts)
-    values (changed.target_id, private.bump_reaction_count('{}'::jsonb, changed.emoji, greatest(delta, 0)))
+    select changed.target_id, private.bump_reaction_count('{}'::jsonb, changed.emoji, greatest(delta, 0))
+    where exists (select 1 from public.posts p where p.id = changed.target_id)
     on conflict (post_id) do update
       set reaction_counts = private.bump_reaction_count(s.reaction_counts, changed.emoji, delta);
   end if;
@@ -127,6 +128,26 @@ create trigger reactions_after_change
   after insert or delete on public.reactions
   for each row execute function private.reactions_after_change();
 
+-- reactions.target_id cannot have a foreign key (it points at posts or
+-- comments), so reactions are removed when their target is.
+create or replace function private.delete_target_reactions()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  delete from public.reactions r
+  where r.target_type = tg_argv[0]::public.reaction_target and r.target_id = old.id;
+  return null;
+end;
+$$;
+
+create trigger posts_delete_reactions
+  after delete on public.posts
+  for each row execute function private.delete_target_reactions('post');
+
+revoke execute on function private.delete_target_reactions() from public, anon, authenticated;
 revoke execute on function private.reactions_before_insert() from public, anon, authenticated;
 revoke execute on function private.reactions_after_change() from public, anon, authenticated;
 

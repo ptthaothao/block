@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
 
-select plan(13);
+select plan(14);
 
 truncate public.reactions, public.post_stats, public.post_tags, public.post_authors, public.posts, public.tags, public.series, public.categories cascade;
 delete from auth.users;
@@ -93,6 +93,14 @@ set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000002","r
 select throws_ok(
   $$ select t.* from posts p cross join lateral toggle_reaction('post', p.id, 'helpful') t where p.slug like 'bulk-%' $$,
   'P0429', null, 'reacting too fast is rate limited'
+);
+
+reset role;
+delete from posts where id = '40000000-0000-0000-0000-000000000001';
+select is(
+  (select count(*) from reactions where target_id = '40000000-0000-0000-0000-000000000001'),
+  0::bigint,
+  'deleting a post removes its reactions'
 );
 
 select * from finish();

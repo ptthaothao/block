@@ -5,7 +5,7 @@ set local search_path = public, extensions;
 
 select plan(9);
 
-truncate public.post_tags, public.post_authors, public.posts, public.tags, public.series, public.categories cascade;
+truncate public.reactions, public.post_tags, public.post_authors, public.posts, public.tags, public.series, public.categories cascade;
 delete from auth.users;
 
 insert into auth.users (id, email, raw_user_meta_data) values
