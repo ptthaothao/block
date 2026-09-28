@@ -1,7 +1,7 @@
 import { CMS_API_ROUTES, QUERY_PARAMS } from "@/config/routes";
 
 import { CMS_ERROR_MESSAGES } from "./constants";
-import type { CmsPost, CmsPostListItem, CmsTaxonomy, PostStatus } from "./types";
+import type { CmsPost, CmsPostListItem, CmsPostPage, CmsTaxonomy, PostStatus } from "./types";
 
 /** Browser-side reads from our own API (BFF). */
 async function getJson<T>(url: string): Promise<T> {
@@ -14,9 +14,12 @@ async function getJson<T>(url: string): Promise<T> {
 }
 
 export const cmsApi = {
-  posts(status: PostStatus | null) {
-    const url = status ? `${CMS_API_ROUTES.posts}?${QUERY_PARAMS.status}=${status}` : CMS_API_ROUTES.posts;
-    return getJson<CmsPostListItem[]>(url);
+  posts(status: PostStatus | null, offset = 0) {
+    const params = new URLSearchParams();
+    if (status) params.set(QUERY_PARAMS.status, status);
+    if (offset) params.set(QUERY_PARAMS.offset, String(offset));
+    const query = params.toString();
+    return getJson<CmsPostPage>(query ? `${CMS_API_ROUTES.posts}?${query}` : CMS_API_ROUTES.posts);
   },
   post: (id: string) => getJson<CmsPost>(CMS_API_ROUTES.post(id)),
   review: () => getJson<CmsPostListItem[]>(CMS_API_ROUTES.review),

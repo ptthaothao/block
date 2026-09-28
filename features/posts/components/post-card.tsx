@@ -1,7 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
 import { ROUTES } from "@/config/routes";
+import { isAllowedCoverUrl } from "@/lib/utils/cover-image";
 
 import { POST_LIMITS } from "../constants";
 import type { PostSummary } from "../types";
@@ -9,9 +11,23 @@ import { CategoryChip } from "./category-chip";
 import { LevelBadge } from "./level-badge";
 import { PostMeta } from "./post-meta";
 
+const COVER_ASPECT_RATIO = "16 / 9";
+
 export function PostCard({ post }: { post: PostSummary }) {
   return (
     <Card as="article" interactive className="group relative flex flex-col gap-4 p-6">
+      {isAllowedCoverUrl(post.coverUrl) && (
+        <div className="-mx-6 -mt-6 overflow-hidden rounded-t-[inherit]" style={{ aspectRatio: COVER_ASPECT_RATIO }}>
+          <Image
+            src={post.coverUrl}
+            alt=""
+            width={640}
+            height={360}
+            className="h-full w-full object-cover"
+            sizes="(min-width: 1024px) 360px, 100vw"
+          />
+        </div>
+      )}
       <div className="flex items-center justify-between gap-3">
         {post.category && <CategoryChip category={post.category} />}
         <LevelBadge level={post.level} />

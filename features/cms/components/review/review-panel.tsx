@@ -14,19 +14,29 @@ import { CMS_LIMITS, CMS_QUERY_KEYS } from "../../constants";
 import { useActionMutation } from "../../hooks/use-action-mutation";
 import { useCmsPost } from "../../hooks/use-cms-queries";
 import { useMarkdownPreview } from "../../hooks/use-markdown-preview";
+import type { CmsPostListItem } from "../../types";
 import { QueryState } from "../query-state";
 
 const NOTE_FIELD_ID = "review-note";
 const NOTE_ROWS = 3;
 const INVALIDATE = [CMS_QUERY_KEYS.review, CMS_QUERY_KEYS.allPosts];
 
+/** Drop `id` from the review queue cache right away, before the round-trip resolves. */
+function removeFromReviewQueue(previous: unknown, id: string) {
+  return (previous as CmsPostListItem[] | undefined)?.filter((post) => post.id !== id);
+}
+
 export function ReviewPanel({ postId }: { postId: string }) {
   const { data: post, isLoading, error } = useCmsPost(postId);
-  const { html } = useMarkdownPreview(post?.contentMd ?? "", Boolean(post));
+  const { html } = useMarkdownPreview(post?.contentMd ?? "", Boolean(post), { debounce: false });
   const [note, setNote] = useState("");
 
-  const publish = useActionMutation((id: string) => publishPost(id), INVALIDATE);
-  const sendBack = useActionMutation((args: { id: string; note: string }) => returnToAuthor(args.id, args.note), INVALIDATE);
+  const publish = useActionMutation((id: string) => publishPost(id), INVALIDATE, [
+    { queryKey: CMS_QUERY_KEYS.review, apply: removeFromReviewQueue },
+  ]);
+  const sendBack = useActionMutation((args: { id: string; note: string }) => returnToAuthor(args.id, args.note), INVALIDATE, [
+    { queryKey: CMS_QUERY_KEYS.review, apply: (previous, args: { id: string; note: string }) => removeFromReviewQueue(previous, args.id) },
+  ]);
   const busy = publish.isPending || sendBack.isPending;
   const actionError = publish.error ?? sendBack.error;
 

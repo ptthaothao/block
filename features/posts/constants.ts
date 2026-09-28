@@ -10,6 +10,7 @@ export const POST_CACHE_TAGS = {
 /** unstable_cache key prefixes. */
 export const POST_CACHE_KEYS = {
   latest: "posts:latest",
+  list: "posts:list",
   slugs: "posts:slugs",
   detail: "posts:detail",
   categoryTree: "categories:tree",

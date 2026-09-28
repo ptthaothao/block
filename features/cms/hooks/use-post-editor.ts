@@ -2,14 +2,14 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { ROUTES } from "@/config/routes";
 import { slugify } from "@/lib/slug/slugify";
 
 import { publishPost, savePost, submitForReview, unpublishPost } from "../actions/posts";
 import { CMS_QUERY_KEYS, CMS_TIMINGS, EMPTY_POST_FORM } from "../constants";
-import type { ActionResult, CmsPost, PostFormValues, SavedPost, SaveState } from "../types";
+import type { ActionResult, CmsPost, PostFormValues, PostStatus, SavedPost, SaveState } from "../types";
 import { toPostFormValues, toPostInput } from "../utils/post-form";
 
 type StatusAction = (id: string) => Promise<ActionResult<SavedPost>>;
@@ -26,28 +26,43 @@ export function usePostEditor(post: CmsPost | null) {
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [error, setError] = useState<string | null>(null);
   // New posts follow the title until the author edits the slug by hand.
-  const slugTouched = useRef(post !== null);
+  const [slugTouched, setSlugTouched] = useState(post !== null);
 
   const canEdit = post ? post.canEdit : true;
   const canPublish = post?.canPublish ?? false;
 
-  const update = useCallback(<K extends keyof PostFormValues>(key: K, value: PostFormValues[K]) => {
-    setValues((prev) => {
-      const next = { ...prev, [key]: value };
-      if (key === "slug") slugTouched.current = true;
-      if (key === "title" && !slugTouched.current) next.slug = slugify(String(value));
-      return next;
-    });
-    setSaveState("dirty");
-  }, []);
+  const update = useCallback(
+    <K extends keyof PostFormValues>(key: K, value: PostFormValues[K]) => {
+      if (key === "slug") setSlugTouched(true);
+      setValues((prev) => {
+        const next = { ...prev, [key]: value };
+        if (key === "title" && !slugTouched) next.slug = slugify(String(value));
+        return next;
+      });
+      setSaveState("dirty");
+    },
+    [slugTouched],
+  );
 
+  /**
+   * Refresh only the lists that could actually be showing stale data:
+   * the post's own detail, the list for its current status, and (only when
+   * the status just changed) the review queue and its previous status's
+   * list. Invalidating every status tab on every autosave would refetch
+   * tabs the user isn't even looking at.
+   */
   const refreshLists = useCallback(
-    (id: string) =>
-      Promise.all([
-        queryClient.invalidateQueries({ queryKey: CMS_QUERY_KEYS.allPosts }),
-        queryClient.invalidateQueries({ queryKey: CMS_QUERY_KEYS.review }),
-        queryClient.invalidateQueries({ queryKey: CMS_QUERY_KEYS.post(id) }),
-      ]),
+    (result: SavedPost, previousStatus?: PostStatus) => {
+      const statusesToRefresh = new Set([result.status, previousStatus].filter((s) => s !== undefined));
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: CMS_QUERY_KEYS.post(result.id) }),
+        queryClient.invalidateQueries({ queryKey: CMS_QUERY_KEYS.posts(null) }),
+        ...[...statusesToRefresh].map((status) =>
+          queryClient.invalidateQueries({ queryKey: CMS_QUERY_KEYS.posts(status) }),
+        ),
+        ...(statusesToRefresh.has("review") ? [queryClient.invalidateQueries({ queryKey: CMS_QUERY_KEYS.review })] : []),
+      ]);
+    },
     [queryClient],
   );
 
@@ -63,13 +78,14 @@ export function usePostEditor(post: CmsPost | null) {
     setSaveState("saved");
     setSaved(result.data);
     if (!saved) router.replace(ROUTES.dashboardEditPost(result.data.id));
-    await refreshLists(result.data.id);
+    await refreshLists(result.data);
     return result.data;
   }, [saved, values, router, refreshLists]);
 
   /** Save pending edits, then run a status change. */
   const runStatusAction = useCallback(
     async (action: StatusAction) => {
+      const previousStatus = saved?.status;
       const current = saveState === "dirty" || !saved ? await save() : saved;
       if (!current) return;
       const result = await action(current.id);
@@ -79,14 +95,16 @@ export function usePostEditor(post: CmsPost | null) {
       }
       setError(null);
       setSaved(result.data);
-      await refreshLists(result.data.id);
+      await refreshLists(result.data, previousStatus);
     },
     [saveState, saved, save, refreshLists],
   );
 
-  // Autosave drafts a few seconds after the last change.
+  // Autosave a few seconds after the last change, for any status the author
+  // can still edit (draft or review) — not just draft, so edits made while a
+  // post is in review aren't silently lost if the author forgets to save.
   useEffect(() => {
-    if (saveState !== "dirty" || !saved || saved.status !== "draft" || !canEdit) return;
+    if (saveState !== "dirty" || !saved || !canEdit) return;
     const timer = setTimeout(() => void save(), CMS_TIMINGS.autosaveDelayMs);
     return () => clearTimeout(timer);
   }, [saveState, saved, canEdit, save]);

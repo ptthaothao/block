@@ -16,6 +16,8 @@ export type CmsPostListItem = {
   authorName: string | null;
 };
 
+export type CmsPostPage = { items: CmsPostListItem[]; nextOffset: number | null };
+
 export type SavedPost = { id: string; slug: string; status: PostStatus; updatedAt: string };
 
 export type CmsPost = {

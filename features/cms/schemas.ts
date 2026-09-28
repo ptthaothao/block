@@ -1,10 +1,10 @@
 import { z } from "zod";
 
+import { isAllowedCoverUrl } from "@/lib/utils/cover-image";
 import { SLUG_MAX_LENGTH, SLUG_PATTERN } from "@/lib/slug/constants";
 
 import { CMS_LIMITS, POST_STATUSES } from "./constants";
 
-const HTTPS_URL_PATTERN = /^https:\/\//;
 const HEX_COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/;
 
 const slug = z
@@ -23,18 +23,20 @@ const optionalText = (max: number) =>
     .nullable()
     .transform((v) => (v ? v : null));
 
-const optionalHttpsUrl = z
+const optionalCoverUrl = z
   .string()
   .trim()
   .nullable()
   .transform((v) => (v ? v : null))
-  .refine((v) => v === null || HTTPS_URL_PATTERN.test(v), "Link phải bắt đầu bằng https://");
+  .refine((v) => v === null || isAllowedCoverUrl(v), "Ảnh bìa phải được tải lên từ kho lưu trữ");
 
 const id = z.number().int().positive();
 
 export const postIdSchema = z.uuid();
 
 export const postStatusFilterSchema = z.enum(POST_STATUSES).nullable();
+
+export const postOffsetSchema = z.number().int().min(0);
 
 export const postInputSchema = z.object({
   title: z.string().trim().min(1, "Cần có tiêu đề").max(CMS_LIMITS.titleMax),
@@ -45,7 +47,7 @@ export const postInputSchema = z.object({
   level: z.enum(["beginner", "intermediate", "advanced"]),
   seriesId: id.nullable(),
   seriesPosition: id.nullable(),
-  coverUrl: optionalHttpsUrl,
+  coverUrl: optionalCoverUrl,
   seoTitle: optionalText(CMS_LIMITS.seoTitleMax),
   seoDescription: optionalText(CMS_LIMITS.seoDescriptionMax),
   tags: z
@@ -89,7 +91,7 @@ export const seriesInputSchema = z.object({
   title: z.string().trim().min(1, "Cần có tên").max(CMS_LIMITS.seriesTitleMax),
   slug,
   description: optionalText(CMS_LIMITS.descriptionMax),
-  coverUrl: optionalHttpsUrl,
+  coverUrl: optionalCoverUrl,
 });
 export type SeriesInput = z.input<typeof seriesInputSchema>;
 

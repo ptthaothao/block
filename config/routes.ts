@@ -38,4 +38,7 @@ export const QUERY_PARAMS = {
   sent: "sent",
   code: "code",
   status: "status",
+  email: "email",
+  offset: "offset",
+  page: "page",
 } as const;

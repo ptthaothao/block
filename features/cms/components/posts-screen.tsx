@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { ButtonLink } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { ROUTES } from "@/config/routes";
 import { hasRole } from "@/features/auth/utils/roles";
 
@@ -17,8 +17,9 @@ import { StatusFilter } from "./status-filter";
 export function PostsScreen() {
   const { role } = useDashboardUser();
   const [status, setStatus] = useState<PostStatus | null>(null);
-  const { data, isLoading, error } = useCmsPosts(status);
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useCmsPosts(status);
   const isEditor = hasRole(role, "editor");
+  const posts = data?.pages.flatMap((page) => page.items);
 
   return (
     <>
@@ -29,7 +30,14 @@ export function PostsScreen() {
       <StatusFilter value={status} onChange={setStatus} />
       <div className="mt-6">
         <QueryState isLoading={isLoading} error={error} />
-        {data && <PostsTable posts={data} showAuthor={isEditor} />}
+        {posts && <PostsTable posts={posts} showAuthor={isEditor} />}
+        {hasNextPage && (
+          <div className="mt-4 flex justify-center">
+            <Button variant="outline" size="sm" disabled={isFetchingNextPage} onClick={() => fetchNextPage()}>
+              {isFetchingNextPage ? "Đang tải…" : "Tải thêm"}
+            </Button>
+          </div>
+        )}
       </div>
     </>
   );

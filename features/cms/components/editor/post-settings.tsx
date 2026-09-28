@@ -111,14 +111,14 @@ export function PostSettings({ editor, taxonomy }: PostSettingsProps) {
         />
       </Field>
 
-      <Field id={FIELD_IDS.cover} label="Ảnh bìa (link https)">
+      <Field id={FIELD_IDS.cover} label="Ảnh bìa" hint="Link ảnh đã tải lên kho lưu trữ.">
         <Input
           id={FIELD_IDS.cover}
           type="url"
           value={values.coverUrl}
           disabled={disabled}
           onChange={(e) => update("coverUrl", e.target.value)}
-          placeholder="https://"
+          placeholder="https://…supabase.co/storage/v1/object/public/…"
         />
       </Field>
 

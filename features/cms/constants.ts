@@ -23,6 +23,10 @@ export const CMS_TIMINGS = {
   autosaveDelayMs: 5_000,
   /** Preview re-renders after the author stops typing this long. */
   previewDebounceMs: 600,
+  /** Default staleTime (ms) for CMS queries, from the QueryClient default. */
+  defaultStaleTimeMs: 30_000,
+  /** Categories/tags/series change rarely; cache them longer than posts. */
+  taxonomyStaleTimeMs: 5 * 60_000,
 } as const;
 
 /** TanStack Query keys. */

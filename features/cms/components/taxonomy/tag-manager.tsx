@@ -11,20 +11,39 @@ import { slugify } from "@/lib/slug/slugify";
 import { deleteTag, mergeTags, saveTag } from "../../actions/taxonomy";
 import { CMS_LIMITS, CMS_QUERY_KEYS, CONFIRM_MESSAGES } from "../../constants";
 import { useActionMutation } from "../../hooks/use-action-mutation";
-import type { CmsTag } from "../../types";
+import type { CmsTag, CmsTaxonomy } from "../../types";
+import type { TagInput } from "../../schemas";
 import { toOptionalNumber } from "../../utils/post-form";
 import { TagStatusBadge } from "../status-badge";
 
 const INVALIDATE = [CMS_QUERY_KEYS.taxonomy];
 const NEW_TAG_INPUT_ID = "new-tag-name";
 
+function withTags(previous: unknown, updateTags: (tags: CmsTag[]) => CmsTag[]) {
+  const taxonomy = previous as CmsTaxonomy | undefined;
+  return taxonomy && { ...taxonomy, tags: updateTags(taxonomy.tags) };
+}
+
 export function TagManager({ tags }: { tags: CmsTag[] }) {
   const [newName, setNewName] = useState("");
   const [search, setSearch] = useState("");
   const [mergeTarget, setMergeTarget] = useState<Record<number, number | null>>({});
 
-  const save = useActionMutation(saveTag, INVALIDATE);
-  const remove = useActionMutation(deleteTag, INVALIDATE);
+  const save = useActionMutation(saveTag, INVALIDATE, [
+    {
+      queryKey: CMS_QUERY_KEYS.taxonomy,
+      apply: (previous, input: TagInput) =>
+        withTags(previous, (tags) =>
+          input.id === null ? tags : tags.map((t) => (t.id === input.id ? { ...t, status: input.status } : t)),
+        ),
+    },
+  ]);
+  const remove = useActionMutation(deleteTag, INVALIDATE, [
+    {
+      queryKey: CMS_QUERY_KEYS.taxonomy,
+      apply: (previous, id: number) => withTags(previous, (tags) => tags.filter((t) => t.id !== id)),
+    },
+  ]);
   const merge = useActionMutation((args: { sourceId: number; targetId: number }) => mergeTags(args.sourceId, args.targetId), INVALIDATE);
   const error = save.error ?? remove.error ?? merge.error;
   const busy = save.isPending || remove.isPending || merge.isPending;

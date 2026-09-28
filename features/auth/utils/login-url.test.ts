@@ -7,9 +7,9 @@ describe("buildLoginPath", () => {
     expect(buildLoginPath()).toBe("/login");
   });
 
-  it("encodes error, sent and next", () => {
+  it("encodes error, sent, email and next", () => {
     expect(buildLoginPath({ error: "email", next: "/me?tab=1" })).toBe("/login?error=email&next=%2Fme%3Ftab%3D1");
-    expect(buildLoginPath({ sent: true })).toBe("/login?sent=1");
+    expect(buildLoginPath({ sent: true, email: "a@b.com" })).toBe("/login?sent=1&email=a%40b.com");
   });
 });
 

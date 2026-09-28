@@ -10,14 +10,22 @@ import { deleteSeries } from "../../actions/taxonomy";
 import { CMS_QUERY_KEYS, CONFIRM_MESSAGES, EMPTY_SERIES_FORM } from "../../constants";
 import { useActionMutation } from "../../hooks/use-action-mutation";
 import type { SeriesInput } from "../../schemas";
-import type { CmsSeries } from "../../types";
+import type { CmsSeries, CmsTaxonomy } from "../../types";
 import { toSeriesForm } from "../../utils/taxonomy-form";
 import { RowActions } from "./row-actions";
 import { SeriesForm } from "./series-form";
 
 export function SeriesManager({ series }: { series: CmsSeries[] }) {
   const [editing, setEditing] = useState<SeriesInput | null>(null);
-  const remove = useActionMutation(deleteSeries, [CMS_QUERY_KEYS.taxonomy]);
+  const remove = useActionMutation(deleteSeries, [CMS_QUERY_KEYS.taxonomy], [
+    {
+      queryKey: CMS_QUERY_KEYS.taxonomy,
+      apply: (previous, id: number) => {
+        const taxonomy = previous as CmsTaxonomy | undefined;
+        return taxonomy && { ...taxonomy, series: taxonomy.series.filter((s) => s.id !== id) };
+      },
+    },
+  ]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">

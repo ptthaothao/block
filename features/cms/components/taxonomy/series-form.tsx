@@ -56,7 +56,7 @@ export function SeriesForm({ initial, onDone }: { initial: SeriesInput; onDone: 
           onChange={(e) => set("description", e.target.value)}
         />
       </Field>
-      <Field id={IDS.cover} label="Ảnh bìa (link https)">
+      <Field id={IDS.cover} label="Ảnh bìa" hint="Link ảnh đã tải lên kho lưu trữ.">
         <Input id={IDS.cover} type="url" value={form.coverUrl ?? ""} onChange={(e) => set("coverUrl", e.target.value)} />
       </Field>
       <div className="flex gap-2">

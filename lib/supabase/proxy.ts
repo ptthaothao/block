@@ -7,6 +7,14 @@ import type { Database } from "@/types/database";
 import { authCookieOptions } from "./cookie-options";
 
 /**
+ * Internal-only request header carrying the JWT-verified user id from the
+ * proxy, so server code handling the same request can skip re-verifying it.
+ * Never trust this header outside of code reading it from `headers()` in a
+ * request the proxy actually ran on (see the matcher in proxy.ts).
+ */
+export const VERIFIED_USER_ID_HEADER = "x-verified-user-id";
+
+/**
  * Refreshes the Supabase session cookie on requests that need a session and
  * returns the signed-in user id (or null). Runs in proxy.ts only.
  */
@@ -32,5 +40,14 @@ export async function updateSession(request: NextRequest) {
 
   // getClaims() verifies the JWT and refreshes an expired session.
   const { data } = await supabase.auth.getClaims();
-  return { response, userId: data?.claims?.sub ?? null };
+  const userId = data?.claims?.sub ?? null;
+
+  // Forward the already-verified user id to the server-rendered request (not
+  // just the response) so downstream code can skip re-verifying the JWT.
+  if (userId) {
+    request.headers.set(VERIFIED_USER_ID_HEADER, userId);
+    response = NextResponse.next({ request });
+  }
+
+  return { response, userId };
 }

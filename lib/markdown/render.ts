@@ -11,8 +11,48 @@ import { unified } from "unified";
 
 import { CODE_THEME, SANITIZE_SCHEMA } from "./constants";
 import { estimateReadingMinutes } from "./reading-time";
-import { rehypeCollectToc } from "./rehype-collect-toc";
+import { collectHeadings, TOC_DATA_KEY } from "./rehype-collect-toc";
 import type { RenderedMarkdown, TocItem } from "./types";
+
+function buildFullProcessor() {
+  return unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkRehype)
+    .use(rehypeSanitize, SANITIZE_SCHEMA)
+    .use(rehypeSlug)
+    .use(collectHeadings)
+    .use(rehypeShiki, { theme: CODE_THEME })
+    .use(rehypeStringify);
+}
+
+function buildPreviewProcessor() {
+  // No syntax highlighting: Shiki is by far the most expensive step, and a
+  // live preview while typing doesn't need highlighted code blocks.
+  return unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkRehype)
+    .use(rehypeSanitize, SANITIZE_SCHEMA)
+    .use(rehypeSlug)
+    .use(rehypeStringify);
+}
+
+// Built once per server instance and reused: Shiki loads its theme/grammars
+// (WASM) on first use, so recreating the processor on every call would pay
+// that cost again each time.
+let fullProcessor: ReturnType<typeof buildFullProcessor> | undefined;
+let previewProcessor: ReturnType<typeof buildPreviewProcessor> | undefined;
+
+function getFullProcessor() {
+  fullProcessor ??= buildFullProcessor();
+  return fullProcessor;
+}
+
+function getPreviewProcessor() {
+  previewProcessor ??= buildPreviewProcessor();
+  return previewProcessor;
+}
 
 /**
  * Markdown to sanitized HTML with highlighted code, a table of contents and a
@@ -20,17 +60,20 @@ import type { RenderedMarkdown, TocItem } from "./types";
  * built), never in the browser.
  */
 export async function renderMarkdown(markdown: string): Promise<RenderedMarkdown> {
-  const toc: TocItem[] = [];
-  const file = await unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkRehype)
-    .use(rehypeSanitize, SANITIZE_SCHEMA)
-    .use(rehypeSlug)
-    .use(rehypeCollectToc(toc))
-    .use(rehypeShiki, { theme: CODE_THEME })
-    .use(rehypeStringify)
-    .process(markdown);
+  const file = await getFullProcessor().process(markdown);
+  return {
+    html: String(file),
+    toc: (file.data[TOC_DATA_KEY] as TocItem[] | undefined) ?? [],
+    readingMinutes: estimateReadingMinutes(markdown),
+  };
+}
 
-  return { html: String(file), toc, readingMinutes: estimateReadingMinutes(markdown) };
+/**
+ * Cheap markdown-to-HTML for the live author preview: same sanitizing as the
+ * published output, but no syntax highlighting (Shiki) and no reading-time
+ * pass, since neither matters while typing.
+ */
+export async function renderMarkdownPreview(markdown: string): Promise<string> {
+  const file = await getPreviewProcessor().process(markdown);
+  return String(file);
 }

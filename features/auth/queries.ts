@@ -1,22 +1,33 @@
 import "server-only";
 
+import { headers } from "next/headers";
 import { cache } from "react";
 
-import { getSupabaseEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
+import { VERIFIED_USER_ID_HEADER } from "@/lib/supabase/proxy";
 
 import { toSessionUser } from "./mappers";
 import type { SessionUser } from "./types";
 
 export const PROFILE_SESSION_SELECT = "id, username, display_name, avatar_url, role" as const;
 
-/** The signed-in user's profile, at most once per request. */
+/**
+ * The signed-in user's profile, at most once per request.
+ *
+ * Throws if Supabase is not configured (via createClient()), rather than
+ * pretending the visitor is signed out: every caller runs at request time on
+ * a session-aware route (see proxy.ts's matcher), so silently returning null
+ * here previously made a misconfigured server look like an infinite login
+ * redirect instead of a clear server error.
+ */
 export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
-  if (!getSupabaseEnv()) return null;
-
   const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const userId = data?.claims?.sub;
+
+  // The proxy already verified this request's JWT (it runs on every
+  // session-aware route, see proxy.ts's matcher); reuse that instead of
+  // calling getClaims() again when the header is present.
+  const forwardedUserId = (await headers()).get(VERIFIED_USER_ID_HEADER);
+  const userId = forwardedUserId ?? (await supabase.auth.getClaims()).data?.claims?.sub;
   if (!userId) return null;
 
   const { data: profile } = await supabase

@@ -15,10 +15,10 @@ import {
   CMS_SERIES_SELECT,
   CMS_TAG_SELECT,
 } from "./selects";
-import type { CmsPost, CmsPostListItem, CmsTaxonomy, PostStatus } from "./types";
+import type { CmsPost, CmsPostListItem, CmsPostPage, CmsTaxonomy, PostStatus } from "./types";
 
-/** Editors see every post; authors see the posts they (co-)author. */
-export async function listCmsPosts(user: SessionUser, status: PostStatus | null): Promise<CmsPostListItem[]> {
+/** Editors see every post; authors see the posts they (co-)author. One page of CMS_LIMITS.postList rows, starting at `offset`. */
+export async function listCmsPosts(user: SessionUser, status: PostStatus | null, offset = 0): Promise<CmsPostPage> {
   const supabase = await createClient();
   const isEditor = hasRole(user.role, "editor");
 
@@ -26,13 +26,16 @@ export async function listCmsPosts(user: SessionUser, status: PostStatus | null)
     .from("posts")
     .select(isEditor ? CMS_POST_LIST_SELECT : CMS_MY_POST_LIST_SELECT)
     .order("updated_at", { ascending: false })
-    .limit(CMS_LIMITS.postList);
+    .range(offset, offset + CMS_LIMITS.postList - 1);
   if (!isEditor) query = query.eq("post_authors.profile_id", user.id);
   if (status) query = query.eq("status", status);
 
   const { data, error } = await query.overrideTypes<CmsPostListRow[], { merge: false }>();
   if (error) throw new Error(`listCmsPosts: ${error.message}`);
-  return data.map(toCmsPostListItem);
+  return {
+    items: data.map(toCmsPostListItem),
+    nextOffset: data.length === CMS_LIMITS.postList ? offset + CMS_LIMITS.postList : null,
+  };
 }
 
 export async function listReviewPosts(): Promise<CmsPostListItem[]> {

@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: "Đăng nhập", robots: { index: fal
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const params = await searchParams;
   const next = safeNextPath(params[QUERY_PARAMS.next]);
-  const { errorMessage, sent } = readLoginStatus(params);
+  const { errorMessage, sent, email } = readLoginStatus(params);
 
   return (
     <Container width="narrow" className="py-20">
@@ -29,11 +29,11 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         )}
         {sent && (
           <Alert tone="success" className="mt-6">
-            Đã gửi liên kết đăng nhập. Kiểm tra hộp thư của bạn nhé.
+            Đã gửi mã đăng nhập tới {email}. Kiểm tra hộp thư và nhập mã bên dưới.
           </Alert>
         )}
 
-        <LoginForm next={next} />
+        <LoginForm next={next} sentToEmail={sent ? email : undefined} />
       </Card>
     </Container>
   );

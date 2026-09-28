@@ -11,14 +11,22 @@ import { deleteCategory } from "../../actions/taxonomy";
 import { CMS_QUERY_KEYS, CONFIRM_MESSAGES, EMPTY_CATEGORY_FORM } from "../../constants";
 import { useActionMutation } from "../../hooks/use-action-mutation";
 import type { CategoryInput } from "../../schemas";
-import type { CmsCategory } from "../../types";
+import type { CmsCategory, CmsTaxonomy } from "../../types";
 import { sortCategoryTree, toCategoryForm } from "../../utils/taxonomy-form";
 import { CategoryForm } from "./category-form";
 import { RowActions } from "./row-actions";
 
 export function CategoryManager({ categories }: { categories: CmsCategory[] }) {
   const [editing, setEditing] = useState<CategoryInput | null>(null);
-  const remove = useActionMutation(deleteCategory, [CMS_QUERY_KEYS.taxonomy]);
+  const remove = useActionMutation(deleteCategory, [CMS_QUERY_KEYS.taxonomy], [
+    {
+      queryKey: CMS_QUERY_KEYS.taxonomy,
+      apply: (previous, id: number) => {
+        const taxonomy = previous as CmsTaxonomy | undefined;
+        return taxonomy && { ...taxonomy, categories: taxonomy.categories.filter((c) => c.id !== id) };
+      },
+    },
+  ]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">

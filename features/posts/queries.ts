@@ -1,6 +1,7 @@
 import "server-only";
 
 import { unstable_cache } from "next/cache";
+import { cache } from "react";
 
 import { renderMarkdown } from "@/lib/markdown/render";
 import type { TocItem } from "@/lib/markdown/types";
@@ -36,6 +37,40 @@ export const getLatestPosts = unstable_cache(
   { tags: [POST_CACHE_TAGS.posts], revalidate: POST_REVALIDATE_SECONDS },
 );
 
+export type PostListPage = { items: PostSummary[]; total: number };
+
+/**
+ * One page of published posts, newest first. Each distinct `page` gets its
+ * own Data Cache entry (still ISR: no cookies are read), so older posts
+ * beyond POST_LIMITS.list stay reachable and indexable through /posts?page=N
+ * instead of only the first page ever being listed.
+ */
+export const getPostsPage = unstable_cache(
+  async (page: number): Promise<PostListPage> => {
+    const supabase = getPublicClient();
+    if (!supabase) return { items: [], total: 0 };
+    const from = page * POST_LIMITS.list;
+    const to = from + POST_LIMITS.list - 1;
+    const { data, error, count } = await supabase
+      .from("posts")
+      .select(POST_SUMMARY_SELECT, { count: "exact" })
+      .eq("status", PUBLISHED_STATUS)
+      .order("published_at", { ascending: false })
+      .range(from, to)
+      .overrideTypes<PostSummaryRow[], { merge: false }>();
+    // PostgREST returns PGRST103 when `from` is past the last row (e.g. a
+    // stale/guessed ?page= value) rather than an empty result; treat that as
+    // an empty, last page instead of a real error. `count` isn't returned
+    // alongside this error, so report `from` as the total to keep
+    // hasNextPage false without a second round-trip just to get the count.
+    if (error?.code === "PGRST103") return { items: [], total: from };
+    if (error) throw new Error(`getPostsPage: ${error.message}`);
+    return { items: data.map(toPostSummary), total: count ?? 0 };
+  },
+  [POST_CACHE_KEYS.list],
+  { tags: [POST_CACHE_TAGS.posts], revalidate: POST_REVALIDATE_SECONDS },
+);
+
 export const getPublishedSlugs = unstable_cache(
   async (): Promise<string[]> => {
     const supabase = getPublicClient();
@@ -53,7 +88,13 @@ export const getPublishedSlugs = unstable_cache(
   { tags: [POST_CACHE_TAGS.posts], revalidate: POST_REVALIDATE_SECONDS },
 );
 
-export function getPostBySlug(slug: string): Promise<PostDetail | null> {
+/**
+ * Wrapped in React's cache() (in addition to unstable_cache below) so
+ * generateMetadata and the page component - which both call this for the
+ * same slug - share one call within a single render pass, instead of racing
+ * two Supabase round-trips when the Data Cache entry is missing/stale.
+ */
+export const getPostBySlug = cache((slug: string): Promise<PostDetail | null> => {
   return unstable_cache(
     async (): Promise<PostDetail | null> => {
       const supabase = getPublicClient();
@@ -79,7 +120,7 @@ export function getPostBySlug(slug: string): Promise<PostDetail | null> {
     [POST_CACHE_KEYS.detail, slug],
     { tags: [POST_CACHE_TAGS.posts, POST_CACHE_TAGS.post(slug)], revalidate: POST_REVALIDATE_SECONDS },
   )();
-}
+});
 
 export const getCategoryTree = unstable_cache(
   async (): Promise<CategoryNode[]> => {
