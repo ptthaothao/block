@@ -1,17 +1,9 @@
 // Generated from the Supabase schema (public). Regenerate after migrations:
-//   npx supabase gen types typescript --project-id <ref> --schema public > types/database.ts
+//   npx supabase gen types typescript --local --schema public > types/database.ts   (or --project-id <ref>)
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
-type PostLevel = "beginner" | "intermediate" | "advanced";
-type PostStatus = "draft" | "review" | "published" | "archived";
-type TagStatus = "pending" | "approved";
-type UserRole = "reader" | "author" | "editor" | "admin";
-
 export type Database = {
-  __InternalSupabase: {
-    PostgrestVersion: "14.5";
-  };
   public: {
     Tables: {
       categories: {
@@ -59,9 +51,21 @@ export type Database = {
         ];
       };
       post_authors: {
-        Row: { position: number; post_id: string; profile_id: string };
-        Insert: { position?: number; post_id: string; profile_id: string };
-        Update: { position?: number; post_id?: string; profile_id?: string };
+        Row: {
+          position: number;
+          post_id: string;
+          profile_id: string;
+        };
+        Insert: {
+          position?: number;
+          post_id: string;
+          profile_id: string;
+        };
+        Update: {
+          position?: number;
+          post_id?: string;
+          profile_id?: string;
+        };
         Relationships: [
           {
             foreignKeyName: "post_authors_post_id_fkey";
@@ -80,9 +84,18 @@ export type Database = {
         ];
       };
       post_tags: {
-        Row: { post_id: string; tag_id: number };
-        Insert: { post_id: string; tag_id: number };
-        Update: { post_id?: string; tag_id?: number };
+        Row: {
+          post_id: string;
+          tag_id: number;
+        };
+        Insert: {
+          post_id: string;
+          tag_id: number;
+        };
+        Update: {
+          post_id?: string;
+          tag_id?: number;
+        };
         Relationships: [
           {
             foreignKeyName: "post_tags_post_id_fkey";
@@ -110,7 +123,7 @@ export type Database = {
           created_by: string;
           excerpt: string | null;
           id: string;
-          level: PostLevel;
+          level: Database["public"]["Enums"]["post_level"];
           published_at: string | null;
           reading_minutes: number;
           review_note: string | null;
@@ -120,9 +133,9 @@ export type Database = {
           series_id: number | null;
           series_position: number | null;
           slug: string;
-          status: PostStatus;
+          status: Database["public"]["Enums"]["post_status"];
           title: string;
-          toc: Json;
+          toc: NonNullable<Json>;
           updated_at: string;
         };
         Insert: {
@@ -134,7 +147,7 @@ export type Database = {
           created_by?: string;
           excerpt?: string | null;
           id?: string;
-          level?: PostLevel;
+          level?: Database["public"]["Enums"]["post_level"];
           published_at?: string | null;
           reading_minutes?: number;
           review_note?: string | null;
@@ -144,9 +157,9 @@ export type Database = {
           series_id?: number | null;
           series_position?: number | null;
           slug: string;
-          status?: PostStatus;
+          status?: Database["public"]["Enums"]["post_status"];
           title: string;
-          toc?: Json;
+          toc?: NonNullable<Json>;
           updated_at?: string;
         };
         Update: {
@@ -158,7 +171,7 @@ export type Database = {
           created_by?: string;
           excerpt?: string | null;
           id?: string;
-          level?: PostLevel;
+          level?: Database["public"]["Enums"]["post_level"];
           published_at?: string | null;
           reading_minutes?: number;
           review_note?: string | null;
@@ -168,9 +181,9 @@ export type Database = {
           series_id?: number | null;
           series_position?: number | null;
           slug?: string;
-          status?: PostStatus;
+          status?: Database["public"]["Enums"]["post_status"];
           title?: string;
-          toc?: Json;
+          toc?: NonNullable<Json>;
           updated_at?: string;
         };
         Relationships: [
@@ -205,7 +218,7 @@ export type Database = {
           display_name: string;
           github_username: string | null;
           id: string;
-          role: UserRole;
+          role: Database["public"]["Enums"]["user_role"];
           specialty: string | null;
           updated_at: string;
           username: string;
@@ -219,7 +232,7 @@ export type Database = {
           display_name: string;
           github_username?: string | null;
           id: string;
-          role?: UserRole;
+          role?: Database["public"]["Enums"]["user_role"];
           specialty?: string | null;
           updated_at?: string;
           username: string;
@@ -233,7 +246,7 @@ export type Database = {
           display_name?: string;
           github_username?: string | null;
           id?: string;
-          role?: UserRole;
+          role?: Database["public"]["Enums"]["user_role"];
           specialty?: string | null;
           updated_at?: string;
           username?: string;
@@ -279,7 +292,7 @@ export type Database = {
           id: number;
           name: string;
           slug: string;
-          status: TagStatus;
+          status: Database["public"]["Enums"]["tag_status"];
         };
         Insert: {
           created_at?: string;
@@ -287,7 +300,7 @@ export type Database = {
           id?: never;
           name: string;
           slug: string;
-          status?: TagStatus;
+          status?: Database["public"]["Enums"]["tag_status"];
         };
         Update: {
           created_at?: string;
@@ -295,7 +308,7 @@ export type Database = {
           id?: never;
           name?: string;
           slug?: string;
-          status?: TagStatus;
+          status?: Database["public"]["Enums"]["tag_status"];
         };
         Relationships: [
           {
@@ -308,25 +321,172 @@ export type Database = {
         ];
       };
     };
-    Views: { [_ in never]: never };
+    Views: {
+      [_ in never]: never;
+    };
     Functions: {
+      author_post_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          avatar_url: string;
+          display_name: string;
+          post_count: number;
+          username: string;
+        }[];
+      };
+      category_post_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          category_id: number;
+          post_count: number;
+        }[];
+      };
+      filter_posts: {
+        Args: {
+          p_author?: string;
+          p_category?: string;
+          p_levels?: Database["public"]["Enums"]["post_level"][];
+          p_limit?: number;
+          p_offset?: number;
+          p_tags?: string[];
+        };
+        Returns: {
+          id: string;
+          total_count: number;
+        }[];
+      };
       immutable_unaccent: { Args: { "": string }; Returns: string };
       merge_tags: { Args: { p_source: number; p_target: number }; Returns: undefined };
-      set_user_role: { Args: { p_role: UserRole; p_user_id: string }; Returns: undefined };
+      set_user_role: {
+        Args: { p_role: Database["public"]["Enums"]["user_role"]; p_user_id: string };
+        Returns: undefined;
+      };
+      tag_post_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          post_count: number;
+          tag_id: number;
+        }[];
+      };
     };
     Enums: {
-      post_level: PostLevel;
-      post_status: PostStatus;
-      tag_status: TagStatus;
-      user_role: UserRole;
+      post_level: "beginner" | "intermediate" | "advanced";
+      post_status: "draft" | "review" | "published" | "archived";
+      tag_status: "pending" | "approved";
+      user_role: "reader" | "author" | "editor" | "admin";
     };
-    CompositeTypes: { [_ in never]: never };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
   };
 };
 
-type PublicSchema = Database["public"];
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">;
 
-export type Tables<T extends keyof PublicSchema["Tables"]> = PublicSchema["Tables"][T]["Row"];
-export type TablesInsert<T extends keyof PublicSchema["Tables"]> = PublicSchema["Tables"][T]["Insert"];
-export type TablesUpdate<T extends keyof PublicSchema["Tables"]> = PublicSchema["Tables"][T]["Update"];
-export type Enums<T extends keyof PublicSchema["Enums"]> = PublicSchema["Enums"][T];
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">];
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R;
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] & DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R;
+      }
+      ? R
+      : never
+    : never;
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I;
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I;
+      }
+      ? I
+      : never
+    : never;
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U;
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U;
+      }
+      ? U
+      : never
+    : never;
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"] | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never;
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never;
+
+export const Constants = {
+  public: {
+    Enums: {
+      post_level: ["beginner", "intermediate", "advanced"],
+      post_status: ["draft", "review", "published", "archived"],
+      tag_status: ["pending", "approved"],
+      user_role: ["reader", "author", "editor", "admin"],
+    },
+  },
+} as const;

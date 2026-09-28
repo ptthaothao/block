@@ -96,3 +96,42 @@ from (values
 ) as v(post_slug, tag_slug)
 join public.posts p on p.slug = v.post_slug
 join public.tags t on t.slug = v.tag_slug;
+
+-- More demo posts so lists, filters and feeds have something to show --------
+insert into public.posts (slug, title, excerpt, content_md, status, level, category_id, reading_minutes, created_by, published_at)
+select v.slug, v.title, v.excerpt, E'## Mở đầu\n\n' || v.excerpt || E'\n\n## Chi tiết\n\nNội dung demo cho môi trường local.\n',
+  'published', v.level::public.post_level,
+  (select id from public.categories where slug = v.category),
+  v.reading_minutes,
+  (select id from public.profiles where username = v.author),
+  now() - (v.days_ago || ' days')::interval
+from (values
+  ('tailwind-v4-co-gi-moi', 'Tailwind v4 có gì mới: CSS-first config và @theme', 'Bỏ tailwind.config.js, khai báo token ngay trong CSS. Những thay đổi đáng giá khi nâng cấp.', 'beginner', 'css', 5, 'minhanh', 3),
+  ('react-19-actions', 'React 19 Actions: form không cần useState', 'useActionState, useFormStatus và cách viết form gọn hơn hẳn.', 'intermediate', 'react', 9, 'minhanh', 4),
+  ('docker-compose-cho-dev', 'Docker Compose cho môi trường dev: một lệnh là chạy', 'Postgres, Redis và app trong một file compose, kèm hot reload.', 'beginner', 'docker', 6, 'hainam', 6),
+  ('index-postgres-thuc-chien', 'Index trong Postgres: khi nào B-tree, khi nào GIN?', 'Đọc EXPLAIN ANALYZE, chọn đúng loại index và tránh index thừa.', 'advanced', 'postgresql', 12, 'hainam', 7),
+  ('llm-agent-tool-calling', 'Tool calling cho LLM agent: thiết kế tool sao cho dễ dùng', 'Tên tool, mô tả, schema tham số và cách trả lỗi để agent tự sửa.', 'intermediate', 'agents', 10, 'minhanh', 8),
+  ('ci-github-actions-nhanh', 'Tăng tốc CI trên GitHub Actions với cache và matrix', 'Cache dependency, chia job song song và chỉ chạy test liên quan.', 'intermediate', 'ci-cd', 7, 'hainam', 9),
+  ('redis-cache-aside', 'Cache-aside với Redis: đọc nhanh mà không sai dữ liệu', 'TTL, invalidation và tránh cache stampede khi traffic tăng.', 'advanced', 'redis', 11, 'hainam', 10),
+  ('vue-composition-api', 'Composition API trong Vue 3 cho người đến từ React', 'ref, computed, watch và composable: so sánh với hooks.', 'beginner', 'vue', 8, 'minhanh', 12),
+  ('go-goroutine-channel', 'Goroutine và channel: đồng thời mà không đau đầu', 'Worker pool, select và context để huỷ việc đúng lúc.', 'intermediate', 'go', 9, 'hainam', 14),
+  ('phong-van-frontend', 'Chuẩn bị phỏng vấn frontend: những câu hay gặp', 'Event loop, rendering, accessibility và cách kể về dự án của bạn.', 'beginner', 'career', 6, 'minhanh', 15)
+) as v(slug, title, excerpt, level, category, reading_minutes, author, days_ago);
+
+insert into public.post_tags (post_id, tag_id)
+select p.id, t.id
+from (values
+  ('tailwind-v4-co-gi-moi', 'tailwind'),
+  ('react-19-actions', 'react'),
+  ('react-19-actions', 'typescript'),
+  ('docker-compose-cho-dev', 'docker'),
+  ('docker-compose-cho-dev', 'postgres'),
+  ('index-postgres-thuc-chien', 'postgres'),
+  ('llm-agent-tool-calling', 'typescript'),
+  ('ci-github-actions-nhanh', 'docker'),
+  ('redis-cache-aside', 'queue'),
+  ('vue-composition-api', 'typescript'),
+  ('go-goroutine-channel', 'queue')
+) as v(post_slug, tag_slug)
+join public.posts p on p.slug = v.post_slug
+join public.tags t on t.slug = v.tag_slug;

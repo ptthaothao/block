@@ -51,7 +51,7 @@ export async function savePost(id: string | null, input: PostInput): Promise<Act
     const rendered = await renderMarkdown(values.contentMd);
     const { error: renderError } = await supabase
       .from("posts")
-      .update({ content_html: rendered.html, toc: rendered.toc as Json, reading_minutes: rendered.readingMinutes })
+      .update({ content_html: rendered.html, toc: rendered.toc as NonNullable<Json>, reading_minutes: rendered.readingMinutes })
       .eq("id", data.id);
     if (renderError) return fail(describeDbError(renderError));
     refreshPublicPost(data.slug);
@@ -80,7 +80,7 @@ export async function publishPost(id: string): Promise<ActionResult<SavedPost>> 
   const result = await updateStatus(id, {
     status: "published",
     content_html: rendered.html,
-    toc: rendered.toc as Json,
+    toc: rendered.toc as NonNullable<Json>,
     reading_minutes: rendered.readingMinutes,
     review_note: null,
   });
