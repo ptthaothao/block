@@ -14,8 +14,10 @@ import type { Database } from "@/types/database";
  * pages; use getPublicClient() there.
  */
 export async function createClient() {
-  const { url, key } = requireSupabaseEnv();
+  // Read cookies first: it marks the route dynamic, so a build without
+  // Supabase env (CI) skips prerendering it instead of failing on the env check.
   const cookieStore = await cookies();
+  const { url, key } = requireSupabaseEnv();
 
   return createServerClient<Database>(url, key, {
     cookieOptions: authCookieOptions,
