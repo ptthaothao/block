@@ -12,14 +12,19 @@ type SheetProps = {
   children: ReactNode;
   /** Sticky footer, e.g. the primary action. */
   footer?: ReactNode;
-  /** "bottom" slides up from the bottom (mobile); "full" covers the whole screen (composer on mobile). */
-  variant?: "bottom" | "full";
+  /**
+   * "bottom" slides up from the bottom (mobile); "full" covers the whole screen
+   * (composer on mobile); "dialog" is a bottom sheet on phones and a centred
+   * modal from `sm` up.
+   */
+  variant?: "bottom" | "full" | "dialog";
   closeLabel?: string;
 };
 
 const VARIANTS = {
   bottom: "mt-auto max-h-[85dvh] rounded-t-xl",
   full: "h-dvh max-h-dvh",
+  dialog: "mt-auto max-h-[85dvh] rounded-t-xl sm:m-auto sm:max-w-md sm:rounded-xl",
 } as const;
 
 /**

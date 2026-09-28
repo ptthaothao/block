@@ -14,6 +14,8 @@ export const PG_ERROR_CODES = {
   foreignKeyViolation: "23503",
   insufficientPrivilege: "42501",
   checkViolation: "23514",
+  /** Raised by our own RPCs when the target does not exist or is not open. */
+  noDataFound: "P0002",
   /** Raised by our own RPCs when a rate limit is hit. */
   rateLimited: "P0429",
 } as const;

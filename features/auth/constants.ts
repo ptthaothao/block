@@ -65,3 +65,9 @@ export const USER_NAV_COPY = {
 
 /** An account created this recently is new: after its first sign-in it lands on onboarding. */
 export const NEW_ACCOUNT_WINDOW_MS = 10 * 60_000;
+
+export const LOGIN_MODAL_COPY = {
+  title: (site: string) => `Đăng nhập ${site}`,
+  defaultReason: "Đăng nhập để thả reaction, bình luận và lưu chủ đề bạn quan tâm.",
+  resumeHint: "Đăng nhập xong bạn sẽ quay lại đúng chỗ này, việc đang làm dở được hoàn tất giúp bạn.",
+} as const;

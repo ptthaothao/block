@@ -153,3 +153,10 @@
     opacity: 1;
   }
 }
+
+/* Reaction "pop": scale 1 → 1.25 → 1 (REACTION_TIMINGS.bounceMs). */
+@keyframes reaction-pop {
+  50% {
+    transform: scale(1.25);
+  }
+}

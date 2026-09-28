@@ -25,6 +25,8 @@ export const ROUTES = {
 export const API_ROUTES = {
   feed: "/api/feed",
   interests: "/api/interests",
+  postReactions: (slug: string) => `/api/posts/${slug}/reactions`,
+  postReactionPeople: (slug: string, emoji: string) => `/api/posts/${slug}/reactions/${emoji}/people`,
 } as const;
 
 /** Read endpoints behind the CMS (BFF). Writes go through Server Actions. */

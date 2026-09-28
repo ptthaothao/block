@@ -10,6 +10,10 @@ import { PostTagList } from "@/features/posts/components/post-tag-list";
 import { PostToc } from "@/features/posts/components/post-toc";
 import { buildPostMetadata } from "@/features/posts/metadata";
 import { getPostBySlug, getPublishedSlugs } from "@/features/posts/queries";
+import { ReactionBar } from "@/features/reactions/components/reaction-bar";
+import { ReactionMobileBar } from "@/features/reactions/components/reaction-mobile-bar";
+import { ReactionRail } from "@/features/reactions/components/reaction-rail";
+import { ReactionSummary } from "@/features/reactions/components/reaction-summary";
 
 // Slugs not built ahead of time are rendered on first request, then cached.
 export const dynamicParams = true;
@@ -34,12 +38,19 @@ export default async function PostPage({ params }: PageProps<"/posts/[slug]">) {
     <Container as="article" className="py-12">
       <PostBreadcrumb category={post.category} />
 
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_260px]">
+      <div className="grid gap-12 lg:grid-cols-[48px_minmax(0,1fr)_220px] lg:gap-10 xl:grid-cols-[48px_minmax(0,1fr)_260px]">
+        <aside className="hidden lg:block">
+          <ReactionRail slug={post.slug} />
+        </aside>
+
         <div className="min-w-0 max-w-3xl">
-          <PostHeader post={post} />
+          <PostHeader post={post}>
+            <ReactionSummary slug={post.slug} />
+          </PostHeader>
           {/* Sanitized when rendered (lib/markdown/render.ts). */}
           <div className="article-prose mt-10" dangerouslySetInnerHTML={{ __html: post.html }} />
           <PostTagList tags={post.tags} />
+          <ReactionBar slug={post.slug} />
           <section aria-label="Tác giả" className="mt-10 space-y-4">
             {post.authors.map((author) => (
               <AuthorCard
@@ -63,6 +74,7 @@ export default async function PostPage({ params }: PageProps<"/posts/[slug]">) {
           <PostToc items={post.toc} />
         </aside>
       </div>
+      <ReactionMobileBar slug={post.slug} />
     </Container>
   );
 }
