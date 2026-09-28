@@ -2,6 +2,7 @@ import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { TextLink } from "@/components/ui/text-link";
 import { ROUTES, TOPICS_SECTION_ID } from "@/config/routes";
+import { FollowButton } from "@/features/interests/components/follow-button";
 import { TagCloud } from "@/features/topics/components/tag-cloud";
 import { TopicGrid } from "@/features/topics/components/topic-grid";
 import { TOPIC_COPY } from "@/features/topics/constants";
@@ -20,7 +21,10 @@ export function TopicsSection({ topics, tags }: { topics: TopicSummary[]; tags: 
             </TextLink>
           }
         />
-        <TopicGrid topics={topics} />
+        <TopicGrid
+          topics={topics}
+          renderAction={(topic) => <FollowButton type="category" slug={topic.slug} name={topic.name} color={topic.color} size="sm" />}
+        />
         <TagCloud tags={tags} label={TOPIC_COPY.tagEyebrow} />
       </Container>
     </section>

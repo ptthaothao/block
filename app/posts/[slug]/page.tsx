@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { Container } from "@/components/ui/container";
+import { FollowButton } from "@/features/interests/components/follow-button";
 import { AuthorCard } from "@/features/posts/components/author-card";
 import { PostBreadcrumb } from "@/features/posts/components/post-breadcrumb";
 import { PostHeader } from "@/features/posts/components/post-header";
@@ -41,7 +42,19 @@ export default async function PostPage({ params }: PageProps<"/posts/[slug]">) {
           <PostTagList tags={post.tags} />
           <section aria-label="Tác giả" className="mt-10 space-y-4">
             {post.authors.map((author) => (
-              <AuthorCard key={author.username} author={author} />
+              <AuthorCard
+                key={author.username}
+                author={author}
+                action={
+                  <FollowButton
+                    type="author"
+                    slug={author.username}
+                    name={author.displayName}
+                    avatarUrl={author.avatarUrl}
+                    size="sm"
+                  />
+                }
+              />
             ))}
           </section>
         </div>

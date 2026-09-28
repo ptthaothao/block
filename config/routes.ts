@@ -16,7 +16,15 @@ export const ROUTES = {
   dashboardReview: "/dashboard/review",
   dashboardTaxonomy: "/dashboard/taxonomy",
   me: "/me",
+  meInterests: "/me/interests",
+  onboarding: "/onboarding",
   apiMe: "/api/me",
+} as const;
+
+/** Public read endpoints for client widgets (BFF). */
+export const API_ROUTES = {
+  feed: "/api/feed",
+  interests: "/api/interests",
 } as const;
 
 /** Read endpoints behind the CMS (BFF). Writes go through Server Actions. */

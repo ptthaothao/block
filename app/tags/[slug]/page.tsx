@@ -5,6 +5,9 @@ import { Container } from "@/components/ui/container";
 import { QUERY_PARAMS, ROUTES } from "@/config/routes";
 import { PostGrid } from "@/features/posts/components/post-grid";
 import { PostPagination } from "@/features/posts/components/post-pagination";
+import { FollowButton } from "@/features/interests/components/follow-button";
+import { FollowerStat } from "@/features/interests/components/follower-stat";
+import { getFollowerCount } from "@/features/interests/queries";
 import { EMPTY_POST_FILTERS, POST_LIMITS } from "@/features/posts/constants";
 import { getFilteredPosts } from "@/features/posts/queries";
 import { parsePage } from "@/features/posts/utils/post-filters";
@@ -31,11 +34,22 @@ export default async function TagPage({ params, searchParams }: PageProps<"/tags
   if (!tag) notFound();
 
   const pageFilters = { ...EMPTY_POST_FILTERS, page: parsePage((await searchParams)[QUERY_PARAMS.page]) };
-  const { items, total } = await getFilteredPosts({ ...pageFilters, tags: [tag.slug] });
+  const [{ items, total }, followers] = await Promise.all([
+    getFilteredPosts({ ...pageFilters, tags: [tag.slug] }),
+    getFollowerCount("tag", tag.slug),
+  ]);
 
   return (
     <>
-      <TopicHero eyebrow={TOPIC_COPY.tagEyebrow} title={`#${tag.name}`} description={null} color={null} postCount={tag.postCount} />
+      <TopicHero
+        eyebrow={TOPIC_COPY.tagEyebrow}
+        title={`#${tag.name}`}
+        description={null}
+        color={null}
+        postCount={tag.postCount}
+        stats={<FollowerStat count={followers} />}
+        action={<FollowButton type="tag" slug={tag.slug} name={tag.name} />}
+      />
       <Container className="py-12">
         <PostGrid posts={items} emptyTitle={TOPIC_COPY.emptyTagPosts} />
         <PostPagination

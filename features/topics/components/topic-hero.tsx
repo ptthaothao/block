@@ -1,14 +1,13 @@
 import type { ReactNode } from "react";
 
 import { Container } from "@/components/ui/container";
-import { DEFAULT_DOT_COLOR } from "@/components/ui/color-dot";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { TextLink } from "@/components/ui/text-link";
 import { ROUTES } from "@/config/routes";
 
 import { TOPIC_COPY, TOPIC_TINT_ALPHA } from "../constants";
 import { topicTint } from "../utils/topic-tint";
-import { TopicIcon } from "./topic-icon";
+import { TopicIconTile } from "./topic-icon-tile";
 
 type TopicHeroProps = {
   eyebrow: string;
@@ -40,12 +39,7 @@ export function TopicHero({ eyebrow, title, description, icon, color, postCount,
         <div className="flex flex-wrap items-start justify-between gap-6">
           <div className="flex min-w-0 items-start gap-5">
             {icon !== undefined && (
-              <span
-                className="hidden size-14 shrink-0 place-items-center rounded-xl sm:grid"
-                style={{ background: topicTint(color) ?? undefined, color: color ?? DEFAULT_DOT_COLOR }}
-              >
-                <TopicIcon icon={icon} className="size-7" />
-              </span>
+              <TopicIconTile icon={icon} color={color} size="lg" className="max-sm:hidden" />
             )}
             <div className="min-w-0">
               <Eyebrow>

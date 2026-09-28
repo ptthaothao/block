@@ -3,9 +3,14 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+import type { FeedInterests, FeedItem } from "@/features/interests/types";
 import { renderMarkdown } from "@/lib/markdown/render";
 import type { TocItem } from "@/lib/markdown/types";
 import { getPublicClient } from "@/lib/supabase/public";
+import { createClient } from "@/lib/supabase/server";
+import type { Database } from "@/types/database";
 
 import {
   POST_CACHE_KEYS,
@@ -41,6 +46,17 @@ export const getLatestPosts = unstable_cache(
 
 export type PostListPage = { items: PostSummary[]; total: number };
 
+/** Summary rows for these post ids, in the same order (ids that no longer resolve are dropped). */
+async function getSummaryRowsByIds(supabase: SupabaseClient<Database>, ids: string[]): Promise<PostSummaryRow[]> {
+  const { data, error } = await supabase
+    .from("posts")
+    .select(POST_SUMMARY_SELECT)
+    .in("id", ids)
+    .overrideTypes<PostSummaryRow[], { merge: false }>();
+  if (error) throw new Error(`getSummaryRowsByIds: ${error.message}`);
+  return orderByIds(data, ids);
+}
+
 /**
  * One page of published posts matching `filters`, newest first. Each distinct
  * set of filters gets its own Data Cache entry (no cookies are read, so it is
@@ -62,14 +78,8 @@ export function getFilteredPosts(filters: PostFilters): Promise<PostListPage> {
       if (error) throw new Error(`getFilteredPosts: ${error.message}`);
       if (matches.length === 0) return { items: [], total: 0 };
 
-      const ids = matches.map((m) => m.id);
-      const { data, error: rowsError } = await supabase
-        .from("posts")
-        .select(POST_SUMMARY_SELECT)
-        .in("id", ids)
-        .overrideTypes<PostSummaryRow[], { merge: false }>();
-      if (rowsError) throw new Error(`getFilteredPosts: ${rowsError.message}`);
-      return { items: orderByIds(data, ids).map(toPostSummary), total: matches[0].total_count };
+      const rows = await getSummaryRowsByIds(supabase, matches.map((m) => m.id));
+      return { items: rows.map(toPostSummary), total: matches[0].total_count };
     },
     [POST_CACHE_KEYS.filtered, postFiltersKey(filters)],
     { tags: [POST_CACHE_TAGS.posts], revalidate: POST_REVALIDATE_SECONDS },
@@ -126,3 +136,34 @@ export const getPostBySlug = cache((slug: string): Promise<PostDetail | null> =>
     { tags: [POST_CACHE_TAGS.posts, POST_CACHE_TAGS.post(slug)], revalidate: POST_REVALIDATE_SECONDS },
   )();
 });
+
+/**
+ * One page of the "Dành cho bạn" feed, ranked by get_feed. Signed-in readers
+ * are ranked by their saved interests (read through their own session, so RLS
+ * applies); visitors pass the interests kept in their browser. Not cached:
+ * it is personal, and the API route marks it no-store.
+ */
+export async function getRankedFeed(
+  { signedIn, interests }: { signedIn: boolean; interests: FeedInterests | null },
+  page: number,
+  pageSize: number,
+): Promise<{ items: FeedItem[]; total: number }> {
+  const supabase = signedIn ? await createClient() : getPublicClient();
+  if (!supabase) return { items: [], total: 0 };
+  const { data: ranked, error } = await supabase.rpc("get_feed", {
+    p_interests: signedIn ? undefined : (interests ?? undefined),
+    p_limit: pageSize,
+    p_offset: page * pageSize,
+  });
+  if (error) throw new Error(`getRankedFeed: ${error.message}`);
+  if (ranked.length === 0) return { items: [], total: 0 };
+
+  const reasons = new Map(
+    ranked.map((r) => [r.id, r.reason_type && r.reason_label ? { type: r.reason_type, label: r.reason_label } : null]),
+  );
+  const rows = await getSummaryRowsByIds(supabase, ranked.map((r) => r.id));
+  return {
+    items: rows.map((row) => ({ post: toPostSummary(row), reason: reasons.get(row.id) ?? null })),
+    total: ranked[0].total_count,
+  };
+}

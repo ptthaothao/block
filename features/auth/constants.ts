@@ -54,3 +54,14 @@ export const SESSION_QUERY_KEY = ["session", "me"] as const;
 
 /** The session is refetched on tab focus; within this window a cached answer is reused. */
 export const SESSION_STALE_TIME_MS = 60_000;
+
+export const USER_NAV_COPY = {
+  signIn: "Đăng nhập",
+  signOut: "Đăng xuất",
+  interests: "Quan tâm của tôi",
+  dashboard: "Bảng điều khiển",
+  menuLabel: (name: string) => `Tài khoản của ${name}`,
+} as const;
+
+/** An account created this recently is new: after its first sign-in it lands on onboarding. */
+export const NEW_ACCOUNT_WINDOW_MS = 10 * 60_000;

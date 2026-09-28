@@ -2,13 +2,11 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Card } from "@/components/ui/card";
-import { DEFAULT_DOT_COLOR } from "@/components/ui/color-dot";
 import { ROUTES } from "@/config/routes";
 
 import { TOPIC_COPY } from "../constants";
 import type { TopicSummary } from "../types";
-import { topicTint } from "../utils/topic-tint";
-import { TopicIcon } from "./topic-icon";
+import { TopicIconTile } from "./topic-icon-tile";
 
 type TopicTileProps = {
   topic: TopicSummary;
@@ -20,12 +18,7 @@ export function TopicTile({ topic, action }: TopicTileProps) {
   return (
     <Card as="li" interactive className="group relative flex flex-col gap-4 p-5">
       <div className="flex items-start justify-between gap-3">
-        <span
-          className="grid size-11 place-items-center rounded-lg"
-          style={{ background: topicTint(topic.color) ?? undefined, color: topic.color ?? DEFAULT_DOT_COLOR }}
-        >
-          <TopicIcon icon={topic.icon} className="size-5" />
-        </span>
+        <TopicIconTile icon={topic.icon} color={topic.color} />
         {action && <div className="relative z-10">{action}</div>}
       </div>
       <div>
