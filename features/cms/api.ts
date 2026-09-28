@@ -1,18 +1,9 @@
 import { CMS_API_ROUTES, QUERY_PARAMS } from "@/config/routes";
+import { getJson } from "@/lib/http/get-json";
 
-import { CMS_ERROR_MESSAGES } from "./constants";
 import type { CmsPost, CmsPostListItem, CmsPostPage, CmsTaxonomy, PostStatus } from "./types";
 
 /** Browser-side reads from our own API (BFF). */
-async function getJson<T>(url: string): Promise<T> {
-  const res = await fetch(url, { credentials: "same-origin", cache: "no-store" });
-  if (!res.ok) {
-    const body = (await res.json().catch(() => null)) as { error?: string } | null;
-    throw new Error(body?.error ?? CMS_ERROR_MESSAGES.unknown);
-  }
-  return res.json() as Promise<T>;
-}
-
 export const cmsApi = {
   posts(status: PostStatus | null, offset = 0) {
     const params = new URLSearchParams();

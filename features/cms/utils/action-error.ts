@@ -1,5 +1,6 @@
-import { CMS_ERROR_MESSAGES, PG_ERROR_CODES } from "../constants";
-import type { ActionResult } from "../types";
+import { PG_ERROR_CODES } from "@/lib/actions/constants";
+
+import { CMS_ERROR_MESSAGES } from "../constants";
 
 type DbError = { code?: string; message: string } | null | undefined;
 
@@ -17,17 +18,4 @@ export function describeDbError(error: DbError): string {
     default:
       return CMS_ERROR_MESSAGES.unknown;
   }
-}
-
-export function ok<T>(data: T): ActionResult<T> {
-  return { ok: true, data };
-}
-
-export function fail<T = never>(error: string): ActionResult<T> {
-  return { ok: false, error };
-}
-
-/** First zod issue message, or the generic one. */
-export function firstIssue(issues: { message: string }[]): string {
-  return issues[0]?.message ?? CMS_ERROR_MESSAGES.invalid;
 }

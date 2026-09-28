@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { NO_STORE_HEADERS } from "@/features/auth/constants";
+import { NO_STORE_HEADERS } from "@/lib/http/constants";
 import { toPublicSessionUser } from "@/features/auth/mappers";
 import { getSessionUser } from "@/features/auth/queries";
 import type { MeResponse } from "@/features/auth/types";

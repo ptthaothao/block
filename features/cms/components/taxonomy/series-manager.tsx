@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 import { deleteSeries } from "../../actions/taxonomy";
 import { CMS_QUERY_KEYS, CONFIRM_MESSAGES, EMPTY_SERIES_FORM } from "../../constants";
-import { useActionMutation } from "../../hooks/use-action-mutation";
+import { useActionMutation } from "@/lib/hooks/use-action-mutation";
 import type { SeriesInput } from "../../schemas";
 import type { CmsSeries, CmsTaxonomy } from "../../types";
 import { toSeriesForm } from "../../utils/taxonomy-form";

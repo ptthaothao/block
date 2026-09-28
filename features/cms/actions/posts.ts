@@ -13,8 +13,11 @@ import { postIdSchema, postInputSchema, reviewNoteSchema, type PostInput } from 
 import { CMS_SAVED_POST_SELECT } from "../selects";
 import { syncPostTags } from "../services/post-tags";
 import { refreshPublicPost } from "../services/revalidate";
-import type { ActionResult, SavedPost } from "../types";
-import { describeDbError, fail, firstIssue, ok } from "../utils/action-error";
+import type { ActionResult } from "@/lib/actions/types";
+
+import type { SavedPost } from "../types";
+import { fail, firstIssue, ok } from "@/lib/actions/result";
+import { describeDbError } from "../utils/action-error";
 
 /** Create (id = null) or update a post's content. Status changes have their own actions. */
 export async function savePost(id: string | null, input: PostInput): Promise<ActionResult<SavedPost>> {

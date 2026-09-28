@@ -12,7 +12,7 @@ import { slugify } from "@/lib/slug/slugify";
 
 import { saveSeries } from "../../actions/taxonomy";
 import { CMS_LIMITS, CMS_QUERY_KEYS } from "../../constants";
-import { useActionMutation } from "../../hooks/use-action-mutation";
+import { useActionMutation } from "@/lib/hooks/use-action-mutation";
 import type { SeriesInput } from "../../schemas";
 
 const IDS = {

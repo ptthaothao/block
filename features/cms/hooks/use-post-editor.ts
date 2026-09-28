@@ -9,7 +9,9 @@ import { slugify } from "@/lib/slug/slugify";
 
 import { publishPost, savePost, submitForReview, unpublishPost } from "../actions/posts";
 import { CMS_QUERY_KEYS, CMS_TIMINGS, EMPTY_POST_FORM } from "../constants";
-import type { ActionResult, CmsPost, PostFormValues, PostStatus, SavedPost, SaveState } from "../types";
+import type { ActionResult } from "@/lib/actions/types";
+
+import type { CmsPost, PostFormValues, PostStatus, SavedPost, SaveState } from "../types";
 import { toPostFormValues, toPostInput } from "../utils/post-form";
 
 type StatusAction = (id: string) => Promise<ActionResult<SavedPost>>;

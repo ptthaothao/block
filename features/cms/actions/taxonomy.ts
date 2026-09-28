@@ -15,8 +15,9 @@ import {
   type TagInput,
 } from "../schemas";
 import { refreshPublicTaxonomy } from "../services/revalidate";
-import type { ActionResult } from "../types";
-import { describeDbError, fail, firstIssue, ok } from "../utils/action-error";
+import type { ActionResult } from "@/lib/actions/types";
+import { fail, firstIssue, ok } from "@/lib/actions/result";
+import { describeDbError } from "../utils/action-error";
 
 type Result = ActionResult<null>;
 

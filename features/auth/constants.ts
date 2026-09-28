@@ -36,9 +36,6 @@ export const OTP_LENGTH = 8;
 
 export const OAUTH_PROVIDER = "github";
 
-/** Responses about the current user must never be cached by a CDN or the browser. */
-export const NO_STORE_HEADERS = { "Cache-Control": "private, no-store" } as const;
-
 /** 303 so a POST (sign-out form) is followed by a GET. */
 export const SEE_OTHER = 303;
 

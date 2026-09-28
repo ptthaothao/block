@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient, type QueryKey } from "@tanstack/react-query";
 
-import type { ActionResult } from "../types";
+import type { ActionResult } from "@/lib/actions/types";
 
 /**
  * One cache entry to optimistically update while a mutation for `args` is

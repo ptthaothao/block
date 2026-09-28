@@ -75,8 +75,6 @@ export type CmsTaxonomy = {
   series: CmsSeries[];
 };
 
-export type ActionResult<T = null> = { ok: true; data: T } | { ok: false; error: string };
-
 /** Editor form state: like PostInput, but tags are typed as one string. */
 export type PostFormValues = {
   title: string;

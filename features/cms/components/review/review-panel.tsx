@@ -11,7 +11,7 @@ import { ROUTES } from "@/config/routes";
 
 import { publishPost, returnToAuthor } from "../../actions/posts";
 import { CMS_LIMITS, CMS_QUERY_KEYS } from "../../constants";
-import { useActionMutation } from "../../hooks/use-action-mutation";
+import { useActionMutation } from "@/lib/hooks/use-action-mutation";
 import { useCmsPost } from "../../hooks/use-cms-queries";
 import { useMarkdownPreview } from "../../hooks/use-markdown-preview";
 import type { CmsPostListItem } from "../../types";

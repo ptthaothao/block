@@ -4,7 +4,7 @@ import { QUERY_PARAMS } from "@/config/routes";
 import { authorize } from "@/features/auth/guards";
 import { listCmsPosts } from "@/features/cms/queries";
 import { postOffsetSchema, postStatusFilterSchema } from "@/features/cms/schemas";
-import { badRequest, forbidden, jsonNoStore } from "@/features/cms/utils/api-response";
+import { badRequest, forbidden, jsonNoStore } from "@/lib/http/api-response";
 
 export async function GET(request: NextRequest) {
   const user = await authorize("author");
