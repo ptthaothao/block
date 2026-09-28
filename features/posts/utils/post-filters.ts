@@ -1,4 +1,5 @@
 import { QUERY_PARAMS } from "@/config/routes";
+import { compareStrings } from "@/lib/utils/compare-strings";
 
 import { EMPTY_POST_FILTERS, POST_LEVEL_VALUES, POST_LIMITS, URL_SLUG_PATTERN } from "../constants";
 import type { PostFilters, PostLevel } from "../types";
@@ -35,7 +36,7 @@ export function parsePostFilters(params: SearchParams): PostFilters {
   const levels = [...new Set(all(params[QUERY_PARAMS.level]).filter(isLevel))];
   return {
     topic: slug(first(params[QUERY_PARAMS.topic])),
-    tags: tags.slice(0, POST_LIMITS.filterTags).sort(),
+    tags: tags.slice(0, POST_LIMITS.filterTags).sort(compareStrings),
     levels: POST_LEVEL_VALUES.filter((level) => levels.includes(level)),
     author: slug(first(params[QUERY_PARAMS.author])),
     page: parsePage(params[QUERY_PARAMS.page]),
@@ -65,7 +66,7 @@ export const filterChanges = {
     topic: filters.topic === topic ? null : topic,
     page: 0,
   }),
-  tag: (filters: PostFilters, tag: string): PostFilters => ({ ...filters, tags: toggle(filters.tags, tag).sort(), page: 0 }),
+  tag: (filters: PostFilters, tag: string): PostFilters => ({ ...filters, tags: toggle(filters.tags, tag).sort(compareStrings), page: 0 }),
   level: (filters: PostFilters, level: PostLevel): PostFilters => ({
     ...filters,
     levels: POST_LEVEL_VALUES.filter((l) => toggle(filters.levels, level).includes(l)),

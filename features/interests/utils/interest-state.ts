@@ -1,3 +1,5 @@
+import { compareStrings } from "@/lib/utils/compare-strings";
+
 import type { FeedInterests, InterestChange, InterestItem, InterestType, InterestWeight } from "../types";
 
 /** Current weight of a target in a list of interests (0 when absent). */
@@ -43,6 +45,6 @@ export function hasFollows(items: InterestItem[]): boolean {
 export function interestsSignature(items: InterestItem[]): string {
   return items
     .map((item) => `${item.type}:${item.slug}:${item.weight}`)
-    .sort()
+    .sort(compareStrings)
     .join("|");
 }
