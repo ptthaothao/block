@@ -11,7 +11,8 @@ export function Logo() {
       >
         {"</>"}
       </span>
-      <span>
+      {/* On the narrowest phones the mark alone keeps the nav and sign-in button on one line. */}
+      <span className="max-[359px]:sr-only">
         code<span className="text-accent">log</span>
       </span>
     </Link>

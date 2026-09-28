@@ -29,7 +29,7 @@ export function PostCard({ post }: { post: PostSummary }) {
         </div>
       )}
       <div className="flex items-center justify-between gap-3">
-        {post.category && <CategoryChip category={post.category} />}
+        {post.category && <CategoryChip category={post.category} linked withParent />}
         <LevelBadge level={post.level} />
       </div>
 
@@ -44,8 +44,13 @@ export function PostCard({ post }: { post: PostSummary }) {
       {post.tags.length > 0 && (
         <ul className="flex flex-wrap gap-2">
           {post.tags.slice(0, POST_LIMITS.tagsOnCard).map((tag) => (
-            <li key={tag.slug} className="font-mono text-xs text-faint">
-              #{tag.name}
+            <li key={tag.slug}>
+              <Link
+                href={ROUTES.tag(tag.slug)}
+                className="relative z-10 font-mono text-xs text-faint transition hover:text-accent"
+              >
+                #{tag.name}
+              </Link>
             </li>
           ))}
         </ul>

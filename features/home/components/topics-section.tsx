@@ -1,25 +1,27 @@
-import { CardGrid } from "@/components/ui/card-grid";
 import { Container } from "@/components/ui/container";
-import { EmptyState } from "@/components/ui/empty-state";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { TOPICS_SECTION_ID } from "@/config/routes";
-import { CategoryCard } from "@/features/posts/components/category-card";
-import type { CategoryNode } from "@/features/posts/types";
+import { TextLink } from "@/components/ui/text-link";
+import { ROUTES, TOPICS_SECTION_ID } from "@/config/routes";
+import { TagCloud } from "@/features/topics/components/tag-cloud";
+import { TopicGrid } from "@/features/topics/components/topic-grid";
+import { TOPIC_COPY } from "@/features/topics/constants";
+import type { TagSummary, TopicSummary } from "@/features/topics/types";
 
-export function TopicsSection({ categories }: { categories: CategoryNode[] }) {
+export function TopicsSection({ topics, tags }: { topics: TopicSummary[]; tags: TagSummary[] }) {
   return (
     <section id={TOPICS_SECTION_ID} className="scroll-mt-20 border-y border-border bg-surface-sunken">
-      <Container className="py-16">
-        <SectionHeading eyebrow="Chọn món" title="Chủ đề" />
-        {categories.length > 0 ? (
-          <CardGrid as="ul" columns={4}>
-            {categories.map((category) => (
-              <CategoryCard key={category.slug} category={category} />
-            ))}
-          </CardGrid>
-        ) : (
-          <EmptyState title="Chưa có chủ đề" />
-        )}
+      <Container className="space-y-8 py-16">
+        <SectionHeading
+          eyebrow={TOPIC_COPY.topicsEyebrow}
+          title={TOPIC_COPY.topicsTitle}
+          action={
+            <TextLink href={ROUTES.topics} tone="accent" className="text-sm font-medium">
+              Xem tất cả →
+            </TextLink>
+          }
+        />
+        <TopicGrid topics={topics} />
+        <TagCloud tags={tags} label={TOPIC_COPY.tagEyebrow} />
       </Container>
     </section>
   );

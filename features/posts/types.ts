@@ -43,11 +43,11 @@ export type PostDetail = PostSummary & {
   series: { slug: string; title: string; position: number | null } | null;
 };
 
-export type CategoryNode = {
-  slug: string;
-  name: string;
-  description: string | null;
-  icon: string | null;
-  color: string | null;
-  children: { slug: string; name: string }[];
+/** Filters for post lists, read from and written to the URL. `page` is zero-based. */
+export type PostFilters = {
+  topic: string | null;
+  tags: string[];
+  levels: PostLevel[];
+  author: string | null;
+  page: number;
 };

@@ -3,7 +3,9 @@ export const ROUTES = {
   home: "/",
   posts: "/posts",
   post: (slug: string) => `/posts/${slug}`,
-  topics: "/#chu-de",
+  topics: "/topics",
+  topic: (slug: string) => `/topics/${slug}`,
+  tag: (slug: string) => `/tags/${slug}`,
   login: "/login",
   authCallback: "/auth/callback",
   signOut: "/auth/signout",
@@ -25,7 +27,7 @@ export const CMS_API_ROUTES = {
   taxonomy: "/api/cms/taxonomy",
 } as const;
 
-/** Anchor id of the topics section on the home page (ROUTES.topics points here). */
+/** Anchor id of the topics section on the home page. */
 export const TOPICS_SECTION_ID = "chu-de";
 
 /** Routes that need a signed-in user; the proxy redirects to login otherwise. */
@@ -41,4 +43,8 @@ export const QUERY_PARAMS = {
   email: "email",
   offset: "offset",
   page: "page",
+  topic: "topic",
+  tag: "tag",
+  level: "level",
+  author: "author",
 } as const;

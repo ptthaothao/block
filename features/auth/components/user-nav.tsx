@@ -13,7 +13,7 @@ export function UserNav() {
 
   if (!user) {
     return (
-      <ButtonLink href={ROUTES.login} size="sm">
+      <ButtonLink href={ROUTES.login} size="sm" className="whitespace-nowrap">
         Đăng nhập
       </ButtonLink>
     );
