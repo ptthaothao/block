@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import { QueryProvider } from "@/components/providers/query-provider";
 import { requireRole } from "@/features/auth/guards";
 import { toPublicSessionUser } from "@/features/auth/mappers";
 import { DashboardShell } from "@/features/cms/components/dashboard-shell";
@@ -12,10 +11,8 @@ export const metadata: Metadata = { title: "Quản trị", robots: { index: fals
 export default async function DashboardLayout({ children }: LayoutProps<"/dashboard">) {
   const user = toPublicSessionUser(await requireRole("author"));
   return (
-    <QueryProvider>
-      <DashboardUserProvider user={user}>
-        <DashboardShell user={user}>{children}</DashboardShell>
-      </DashboardUserProvider>
-    </QueryProvider>
+    <DashboardUserProvider user={user}>
+      <DashboardShell user={user}>{children}</DashboardShell>
+    </DashboardUserProvider>
   );
 }

@@ -48,3 +48,9 @@ export const LOGIN_FORM_FIELDS = {
 
 /** Higher rank includes every permission of the ranks below it. */
 export const ROLE_RANK = { reader: 0, author: 1, editor: 2, admin: 3 } as const;
+
+/** TanStack Query key for the signed-in user, shared by every widget that needs it. */
+export const SESSION_QUERY_KEY = ["session", "me"] as const;
+
+/** The session is refetched on tab focus; within this window a cached answer is reused. */
+export const SESSION_STALE_TIME_MS = 60_000;
