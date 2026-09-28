@@ -320,6 +320,65 @@ export type Database = {
           },
         ];
       };
+      user_interests: {
+        Row: {
+          author_id: string | null;
+          category_id: number | null;
+          created_at: string;
+          id: number;
+          tag_id: number | null;
+          user_id: string;
+          weight: number;
+        };
+        Insert: {
+          author_id?: string | null;
+          category_id?: number | null;
+          created_at?: string;
+          id?: never;
+          tag_id?: number | null;
+          user_id?: string;
+          weight: number;
+        };
+        Update: {
+          author_id?: string | null;
+          category_id?: number | null;
+          created_at?: string;
+          id?: never;
+          tag_id?: number | null;
+          user_id?: string;
+          weight?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_interests_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "user_interests_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "categories";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "user_interests_tag_id_fkey";
+            columns: ["tag_id"];
+            isOneToOne: false;
+            referencedRelation: "tags";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "user_interests_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -355,8 +414,34 @@ export type Database = {
           total_count: number;
         }[];
       };
+      follower_count: {
+        Args: { p_slug: string; p_type: Database["public"]["Enums"]["interest_target"] };
+        Returns: number;
+      };
+      get_feed: {
+        Args: {
+          p_half_life_days?: number;
+          p_interests?: Json;
+          p_limit?: number;
+          p_match_share?: number;
+          p_max_tag_matches?: number;
+          p_offset?: number;
+        };
+        Returns: {
+          id: string;
+          matched: boolean;
+          reason_label: string;
+          reason_type: Database["public"]["Enums"]["interest_target"];
+          total_count: number;
+        }[];
+      };
       immutable_unaccent: { Args: { "": string }; Returns: string };
       merge_tags: { Args: { p_source: number; p_target: number }; Returns: undefined };
+      post_popularity: { Args: { p_post_id: string }; Returns: number };
+      set_interest: {
+        Args: { p_slug: string; p_type: Database["public"]["Enums"]["interest_target"]; p_weight: number };
+        Returns: undefined;
+      };
       set_user_role: {
         Args: { p_role: Database["public"]["Enums"]["user_role"]; p_user_id: string };
         Returns: undefined;
@@ -370,6 +455,7 @@ export type Database = {
       };
     };
     Enums: {
+      interest_target: "category" | "tag" | "author";
       post_level: "beginner" | "intermediate" | "advanced";
       post_status: "draft" | "review" | "published" | "archived";
       tag_status: "pending" | "approved";
@@ -483,6 +569,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      interest_target: ["category", "tag", "author"],
       post_level: ["beginner", "intermediate", "advanced"],
       post_status: ["draft", "review", "published", "archived"],
       tag_status: ["pending", "approved"],
