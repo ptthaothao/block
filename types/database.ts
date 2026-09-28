@@ -83,6 +83,32 @@ export type Database = {
           },
         ];
       };
+      post_stats: {
+        Row: {
+          comment_count: number;
+          post_id: string;
+          reaction_counts: NonNullable<Json>;
+        };
+        Insert: {
+          comment_count?: number;
+          post_id: string;
+          reaction_counts?: NonNullable<Json>;
+        };
+        Update: {
+          comment_count?: number;
+          post_id?: string;
+          reaction_counts?: NonNullable<Json>;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "post_stats_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: true;
+            referencedRelation: "posts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       post_tags: {
         Row: {
           post_id: string;
@@ -254,6 +280,38 @@ export type Database = {
           x_username?: string | null;
         };
         Relationships: [];
+      };
+      reactions: {
+        Row: {
+          created_at: string;
+          emoji: Database["public"]["Enums"]["reaction_kind"];
+          target_id: string;
+          target_type: Database["public"]["Enums"]["reaction_target"];
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          emoji: Database["public"]["Enums"]["reaction_kind"];
+          target_id: string;
+          target_type: Database["public"]["Enums"]["reaction_target"];
+          user_id?: string;
+        };
+        Update: {
+          created_at?: string;
+          emoji?: Database["public"]["Enums"]["reaction_kind"];
+          target_id?: string;
+          target_type?: Database["public"]["Enums"]["reaction_target"];
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "reactions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       series: {
         Row: {
@@ -437,6 +495,13 @@ export type Database = {
       };
       immutable_unaccent: { Args: { "": string }; Returns: string };
       merge_tags: { Args: { p_source: number; p_target: number }; Returns: undefined };
+      my_reactions: {
+        Args: { p_target_ids: string[]; p_target_type: Database["public"]["Enums"]["reaction_target"] };
+        Returns: {
+          emoji: Database["public"]["Enums"]["reaction_kind"];
+          target_id: string;
+        }[];
+      };
       post_popularity: { Args: { p_post_id: string }; Returns: number };
       set_interest: {
         Args: { p_slug: string; p_type: Database["public"]["Enums"]["interest_target"]; p_weight: number };
@@ -453,11 +518,24 @@ export type Database = {
           tag_id: number;
         }[];
       };
+      toggle_reaction: {
+        Args: {
+          p_emoji: Database["public"]["Enums"]["reaction_kind"];
+          p_target_id: string;
+          p_target_type: Database["public"]["Enums"]["reaction_target"];
+        };
+        Returns: {
+          counts: Json;
+          mine: Database["public"]["Enums"]["reaction_kind"][];
+        }[];
+      };
     };
     Enums: {
       interest_target: "category" | "tag" | "author";
       post_level: "beginner" | "intermediate" | "advanced";
       post_status: "draft" | "review" | "published" | "archived";
+      reaction_kind: "helpful" | "love" | "mindblown" | "confused";
+      reaction_target: "post" | "comment";
       tag_status: "pending" | "approved";
       user_role: "reader" | "author" | "editor" | "admin";
     };
@@ -572,6 +650,8 @@ export const Constants = {
       interest_target: ["category", "tag", "author"],
       post_level: ["beginner", "intermediate", "advanced"],
       post_status: ["draft", "review", "published", "archived"],
+      reaction_kind: ["helpful", "love", "mindblown", "confused"],
+      reaction_target: ["post", "comment"],
       tag_status: ["pending", "approved"],
       user_role: ["reader", "author", "editor", "admin"],
     },
