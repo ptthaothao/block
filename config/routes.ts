@@ -15,6 +15,7 @@ export const ROUTES = {
   dashboardEditPost: (id: string) => `/dashboard/posts/${id}`,
   dashboardReview: "/dashboard/review",
   dashboardTaxonomy: "/dashboard/taxonomy",
+  dashboardModeration: "/dashboard/moderation",
   me: "/me",
   meInterests: "/me/interests",
   onboarding: "/onboarding",
@@ -27,6 +28,8 @@ export const API_ROUTES = {
   interests: "/api/interests",
   postReactions: (slug: string) => `/api/posts/${slug}/reactions`,
   postReactionPeople: (slug: string, emoji: string) => `/api/posts/${slug}/reactions/${emoji}/people`,
+  postComments: (slug: string) => `/api/posts/${slug}/comments`,
+  commentReplies: (id: string) => `/api/comments/${id}/replies`,
 } as const;
 
 /** Read endpoints behind the CMS (BFF). Writes go through Server Actions. */
@@ -35,6 +38,7 @@ export const CMS_API_ROUTES = {
   post: (id: string) => `/api/cms/posts/${id}`,
   review: "/api/cms/review",
   taxonomy: "/api/cms/taxonomy",
+  moderation: "/api/cms/moderation",
 } as const;
 
 /** Anchor id of the topics section on the home page. */
@@ -57,4 +61,5 @@ export const QUERY_PARAMS = {
   tag: "tag",
   level: "level",
   author: "author",
+  commentSort: "comments",
 } as const;

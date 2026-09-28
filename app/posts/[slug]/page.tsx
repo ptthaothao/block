@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import { Container } from "@/components/ui/container";
+import { CommentSection } from "@/features/comments/components/comment-section";
+import { CommentSectionFallback } from "@/features/comments/components/comment-section-fallback";
 import { FollowButton } from "@/features/interests/components/follow-button";
 import { AuthorCard } from "@/features/posts/components/author-card";
 import { PostBreadcrumb } from "@/features/posts/components/post-breadcrumb";
@@ -68,6 +71,10 @@ export default async function PostPage({ params }: PageProps<"/posts/[slug]">) {
               />
             ))}
           </section>
+          {/* Reads the comment sort from the URL, so it renders on the client. */}
+          <Suspense fallback={<CommentSectionFallback />}>
+            <CommentSection slug={post.slug} />
+          </Suspense>
         </div>
 
         <aside className="hidden lg:block">

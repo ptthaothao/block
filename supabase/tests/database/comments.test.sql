@@ -30,10 +30,10 @@ set local role authenticated;
 
 -- bob writes a thread, a reply, and replies to his reply.
 set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}';
-insert into ids select 'root', id from create_comment('50000000-0000-0000-0000-000000000001', null, 'Câu hỏi về `queue`');
+insert into ids select 'root', id from create_comment('50000000-0000-0000-0000-000000000001', 'Câu hỏi về `queue`', null);
 select is((select status from comments where id = (select id from ids where name = 'root')), 'visible', 'a comment from an established reader is visible');
-insert into ids select 'reply', id from create_comment('50000000-0000-0000-0000-000000000001', (select id from ids where name = 'root'), 'Trả lời');
-insert into ids select 'reply2', id from create_comment('50000000-0000-0000-0000-000000000001', (select id from ids where name = 'reply'), '@bob trả lời tiếp');
+insert into ids select 'reply', id from create_comment('50000000-0000-0000-0000-000000000001', 'Trả lời', (select id from ids where name = 'root'));
+insert into ids select 'reply2', id from create_comment('50000000-0000-0000-0000-000000000001', '@bob trả lời tiếp', (select id from ids where name = 'reply'));
 select is(
   (select parent_id from comments where id = (select id from ids where name = 'reply2')),
   (select id from ids where name = 'root'),
@@ -44,7 +44,7 @@ select throws_ok(
   '23514', null, 'replies cannot nest two levels'
 );
 select throws_ok(
-  $$ select create_comment('50000000-0000-0000-0000-000000000002', null, 'hi') $$,
+  $$ select create_comment('50000000-0000-0000-0000-000000000002', 'hi', null) $$,
   'P0002', null, 'drafts take no comments'
 );
 select is((select reply_count from comments where id = (select id from ids where name = 'root')), 2, 'the thread counts its replies');
@@ -68,7 +68,7 @@ select throws_ok(
 
 -- carol is new and posts a link: held for review.
 set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
-insert into ids select 'spam', id from create_comment('50000000-0000-0000-0000-000000000001', null, 'Xem https://example.com');
+insert into ids select 'spam', id from create_comment('50000000-0000-0000-0000-000000000001', 'Xem https://example.com', null);
 select is((select status from comments where id = (select id from ids where name = 'spam')), 'pending', 'links from new accounts wait for review');
 select is((select count(*) from comments where id = (select id from ids where name = 'spam')), 1::bigint, 'the writer sees their pending comment');
 update comments set body_md = 'sửa bậy' where id = (select id from ids where name = 'root');
@@ -122,7 +122,7 @@ select is(
 
 -- Rate limit: bob already wrote 3 in the last minute.
 select throws_ok(
-  $$ select c.* from generate_series(1, 5) g cross join lateral create_comment('50000000-0000-0000-0000-000000000001', null, 'spam ' || g) c $$,
+  $$ select c.* from generate_series(1, 5) g cross join lateral create_comment('50000000-0000-0000-0000-000000000001', 'spam ' || g, null) c $$,
   'P0429', null, 'commenting too fast is rate limited'
 );
 

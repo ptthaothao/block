@@ -1,3 +1,5 @@
+import { POST_COMMENTS_ANCHOR } from "@/features/comments/constants";
+
 import type { ReactionKind } from "./types";
 
 /** The fixed emoji set, in display order. Must match the reaction_kind enum in the database. */
@@ -38,7 +40,7 @@ export const REACTION_TIMINGS = {
 export const MOBILE_BAR_TOP_OFFSET_PX = 400;
 
 /** Anchors on the post page. */
-export const POST_ANCHORS = { reactions: "reactions", comments: "comments" } as const;
+export const POST_ANCHORS = { reactions: "reactions", comments: POST_COMMENTS_ANCHOR } as const;
 
 /** Type of the pending action replayed after signing in. */
 export const REACTION_PENDING_ACTION = "reaction";

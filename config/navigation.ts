@@ -30,4 +30,5 @@ export const DASHBOARD_NAV: DashboardNavItem[] = [
   { href: ROUTES.dashboardNewPost, label: "Viết bài mới", minRole: "author" },
   { href: ROUTES.dashboardReview, label: "Duyệt bài", minRole: "editor" },
   { href: ROUTES.dashboardTaxonomy, label: "Phân loại", minRole: "editor" },
+  { href: ROUTES.dashboardModeration, label: "Kiểm duyệt", minRole: "editor" },
 ];

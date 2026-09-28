@@ -97,6 +97,42 @@
     line-height: 1.75;
   }
 
+  /* Comment bodies: same palette as articles, smaller and tighter. */
+  .comment-prose {
+    @apply prose prose-invert prose-sm max-w-none;
+    --tw-prose-body: var(--text);
+    --tw-prose-links: var(--accent);
+    --tw-prose-bold: var(--text);
+    --tw-prose-quotes: var(--text-muted);
+    --tw-prose-quote-borders: var(--border-strong);
+    --tw-prose-code: var(--sky);
+    --tw-prose-bullets: var(--text-faint);
+    --tw-prose-counters: var(--text-faint);
+    overflow-wrap: anywhere;
+  }
+
+  .comment-prose :where(p) {
+    margin-block: 0.5em;
+  }
+
+  .comment-prose :where(:not(pre) > code) {
+    background: var(--surface-hover);
+    border-radius: var(--radius-sm);
+    padding: 0.1rem 0.3rem;
+    font-weight: 500;
+  }
+
+  .comment-prose :where(:not(pre) > code)::before,
+  .comment-prose :where(:not(pre) > code)::after {
+    content: none;
+  }
+
+  .comment-prose pre {
+    background: var(--surface-sunken);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+
   .article-prose :where(h2, h3) {
     font-family: var(--font-display);
     scroll-margin-top: 6rem;
@@ -158,5 +194,15 @@
 @keyframes reaction-pop {
   50% {
     transform: scale(1.25);
+  }
+}
+
+/* A comment opened from a #comment-<id> link. */
+@keyframes comment-highlight {
+  from {
+    background-color: rgb(96 165 250 / 0.14);
+  }
+  to {
+    background-color: transparent;
   }
 }

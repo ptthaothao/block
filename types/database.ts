@@ -622,7 +622,7 @@ export type Database = {
         }[];
       };
       create_comment: {
-        Args: { p_body_md: string; p_parent_id: string; p_post_id: string };
+        Args: { p_body_md: string; p_parent_id?: string; p_post_id: string };
         Returns: {
           id: string;
           status: Database["public"]["Enums"]["comment_status"];

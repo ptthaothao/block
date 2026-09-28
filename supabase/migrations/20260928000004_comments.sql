@@ -380,7 +380,7 @@ revoke delete on public.reports from anon, authenticated;
 
 -- Write a comment or a reply. Replying to a reply attaches to the same thread.
 -- Returns the new comment's id and status ('pending' when held for review).
-create or replace function public.create_comment(p_post_id uuid, p_parent_id uuid, p_body_md text)
+create or replace function public.create_comment(p_post_id uuid, p_body_md text, p_parent_id uuid default null)
 returns table (id uuid, status public.comment_status)
 language plpgsql
 security invoker
@@ -407,8 +407,8 @@ begin
 end;
 $$;
 
-revoke execute on function public.create_comment(uuid, uuid, text) from public, anon;
-grant execute on function public.create_comment(uuid, uuid, text) to authenticated;
+revoke execute on function public.create_comment(uuid, text, uuid) from public, anon;
+grant execute on function public.create_comment(uuid, text, uuid) to authenticated;
 
 -- One page of top-level threads on a post, pinned first, then by p_sort:
 -- 'best' (reactions + replies) or 'new'. RLS decides which rows each reader sees.
