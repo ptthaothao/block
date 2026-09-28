@@ -1,6 +1,6 @@
 import "server-only";
 
-import { DEFAULT_SITE_URL, ENV_KEYS, readSupabaseEnv } from "./env-keys";
+import { ENV_KEYS, readSupabaseEnv, resolveSiteUrl } from "./env-keys";
 
 export function getSupabaseEnv() {
   return readSupabaseEnv();
@@ -14,4 +14,4 @@ export function requireSupabaseEnv() {
   return env;
 }
 
-export const siteUrl = process.env[ENV_KEYS.siteUrl] ?? DEFAULT_SITE_URL;
+export const siteUrl = resolveSiteUrl();
