@@ -6,6 +6,7 @@ import { siteUrl } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
 import { LOGIN_ERROR_CODES, LOGIN_FORM_FIELDS, OAUTH_PROVIDER } from "./constants";
+import { emailSendErrorCode } from "./utils/email-send-error";
 import { loginEmailSchema } from "./schemas";
 import { buildCallbackUrl, buildLoginPath } from "./utils/login-url";
 import { safeNextPath } from "./utils/safe-next-path";
@@ -31,6 +32,6 @@ export async function signInWithEmail(formData: FormData) {
     email: email.data,
     options: { emailRedirectTo: buildCallbackUrl(siteUrl, next) },
   });
-  if (error) redirect(buildLoginPath({ error: LOGIN_ERROR_CODES.send, next }));
+  if (error) redirect(buildLoginPath({ error: emailSendErrorCode(error.code), next }));
   redirect(buildLoginPath({ sent: true, next }));
 }
