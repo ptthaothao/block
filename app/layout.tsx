@@ -1,3 +1,5 @@
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -36,6 +38,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <InterestImportPrompt />
           </ToastProvider>
         </QueryProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
