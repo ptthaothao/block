@@ -1,43 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
-import { ROUTES } from "@/config/routes";
-
-import type { MeResponse, PublicSessionUser } from "../types";
+import { authApi } from "../api";
+import { SESSION_QUERY_KEY, SESSION_STALE_TIME_MS } from "../constants";
+import type { PublicSessionUser } from "../types";
 
 /** `undefined` while loading, `null` when signed out. */
 export type SessionUserState = PublicSessionUser | null | undefined;
 
 /**
- * Pages are static, so the signed-in user is fetched from our own API once
- * after load, then refetched on tab focus to pick up sign-in/sign-out from
- * another tab. Sign-in/sign-out in this tab redirect to a different path,
- * which remounts this component and refetches anyway. The browser never
- * talks to Supabase.
+ * Pages are static, so the signed-in user comes from our own API after load.
+ * One shared query means the header, reactions, comments and follow buttons
+ * all agree, and refetching on tab focus picks up sign-in/sign-out from
+ * another tab. The browser never talks to Supabase.
  */
 export function useSessionUser(): SessionUserState {
-  const [user, setUser] = useState<SessionUserState>(undefined);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    function load() {
-      fetch(ROUTES.apiMe, { signal: controller.signal, credentials: "same-origin" })
-        .then((res) => (res.ok ? (res.json() as Promise<MeResponse>) : { user: null }))
-        .then((body) => setUser(body.user))
-        .catch(() => {
-          if (!controller.signal.aborted) setUser(null);
-        });
-    }
-
-    load();
-    window.addEventListener("focus", load);
-    return () => {
-      controller.abort();
-      window.removeEventListener("focus", load);
-    };
-  }, []);
-
-  return user;
+  const { data, isError } = useQuery({
+    queryKey: SESSION_QUERY_KEY,
+    queryFn: authApi.me,
+    staleTime: SESSION_STALE_TIME_MS,
+    refetchOnWindowFocus: true,
+    select: (body) => body.user,
+  });
+  if (isError) return null;
+  return data;
 }

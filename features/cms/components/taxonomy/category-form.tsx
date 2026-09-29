@@ -13,7 +13,7 @@ import { slugify } from "@/lib/slug/slugify";
 
 import { saveCategory } from "../../actions/taxonomy";
 import { CMS_LIMITS, CMS_QUERY_KEYS } from "../../constants";
-import { useActionMutation } from "../../hooks/use-action-mutation";
+import { useActionMutation } from "@/lib/hooks/use-action-mutation";
 import type { CategoryInput } from "../../schemas";
 import type { CmsCategory } from "../../types";
 import { toOptionalNumber } from "../../utils/post-form";

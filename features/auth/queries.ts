@@ -37,3 +37,10 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
     .maybeSingle();
   return profile ? toSessionUser(profile) : null;
 });
+
+/** When the signed-in user's profile was created, or null when signed out. */
+export async function getAccountCreatedAt(userId: string): Promise<Date | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("profiles").select("created_at").eq("id", userId).maybeSingle();
+  return data ? new Date(data.created_at) : null;
+}

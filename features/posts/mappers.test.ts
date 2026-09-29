@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { toCategoryTree, toPostSummary } from "./mappers";
+import { toPostSummary } from "./mappers";
 import type { PostSummaryRow } from "./rows";
 
 const row: PostSummaryRow = {
+  id: "00000000-0000-0000-0000-000000000001",
   slug: "queue",
   title: "Queue",
   excerpt: null,
@@ -25,14 +26,5 @@ describe("post mappers", () => {
     expect(post.authors.map((a) => a.username)).toEqual(["a", "b"]);
     expect(post.tags).toEqual([{ slug: "php", name: "php" }]);
     expect(post.category?.parent).toEqual({ slug: "backend", name: "Backend" });
-  });
-
-  it("nests children under their parent category", () => {
-    const tree = toCategoryTree([
-      { id: 1, parent_id: null, slug: "fe", name: "FE", description: null, icon: null, color: null },
-      { id: 2, parent_id: 1, slug: "react", name: "React", description: null, icon: null, color: null },
-    ]);
-    expect(tree).toHaveLength(1);
-    expect(tree[0].children).toEqual([{ slug: "react", name: "React" }]);
   });
 });

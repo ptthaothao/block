@@ -1,3 +1,5 @@
+import { COMMON_ERROR_MESSAGES } from "@/lib/actions/constants";
+
 import type { CategoryInput, SeriesInput } from "./schemas";
 import type { PostFormValues, PostLevel, PostStatus, SaveState, TagStatus } from "./types";
 
@@ -61,21 +63,13 @@ export const TAG_STATUS_META: Record<TagStatus, { label: string; className: stri
   approved: { label: "Đã duyệt", className: "text-emerald bg-emerald/10 ring-emerald/25" },
 };
 
-/** Postgres error codes we translate for people. */
-export const PG_ERROR_CODES = {
-  uniqueViolation: "23505",
-  foreignKeyViolation: "23503",
-  insufficientPrivilege: "42501",
-  checkViolation: "23514",
-} as const;
-
 export const CMS_ERROR_MESSAGES = {
-  forbidden: "Bạn không có quyền làm việc này.",
+  forbidden: COMMON_ERROR_MESSAGES.forbidden,
   notFound: "Không tìm thấy hoặc bạn không có quyền sửa.",
   duplicateSlug: "Slug này đã được dùng, hãy đổi slug khác.",
   inUse: "Mục này đang được dùng nên chưa xoá được.",
-  invalid: "Dữ liệu chưa hợp lệ.",
-  unknown: "Có lỗi xảy ra, thử lại sau nhé.",
+  invalid: COMMON_ERROR_MESSAGES.invalid,
+  unknown: COMMON_ERROR_MESSAGES.unknown,
 } as const;
 
 export const TAXONOMY_TABS = [
@@ -87,8 +81,6 @@ export type TaxonomyTab = (typeof TAXONOMY_TABS)[number]["id"];
 
 /** Separator authors type between tags. */
 export const TAG_INPUT_SEPARATOR = ",";
-
-export const HTTP_STATUS = { badRequest: 400, forbidden: 403, notFound: 404 } as const;
 
 export const EMPTY_POST_FORM: PostFormValues = {
   title: "",

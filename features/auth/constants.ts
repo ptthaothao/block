@@ -36,9 +36,6 @@ export const OTP_LENGTH = 8;
 
 export const OAUTH_PROVIDER = "github";
 
-/** Responses about the current user must never be cached by a CDN or the browser. */
-export const NO_STORE_HEADERS = { "Cache-Control": "private, no-store" } as const;
-
 /** 303 so a POST (sign-out form) is followed by a GET. */
 export const SEE_OTHER = 303;
 
@@ -51,3 +48,26 @@ export const LOGIN_FORM_FIELDS = {
 
 /** Higher rank includes every permission of the ranks below it. */
 export const ROLE_RANK = { reader: 0, author: 1, editor: 2, admin: 3 } as const;
+
+/** TanStack Query key for the signed-in user, shared by every widget that needs it. */
+export const SESSION_QUERY_KEY = ["session", "me"] as const;
+
+/** The session is refetched on tab focus; within this window a cached answer is reused. */
+export const SESSION_STALE_TIME_MS = 60_000;
+
+export const USER_NAV_COPY = {
+  signIn: "Đăng nhập",
+  signOut: "Đăng xuất",
+  interests: "Quan tâm của tôi",
+  dashboard: "Bảng điều khiển",
+  menuLabel: (name: string) => `Tài khoản của ${name}`,
+} as const;
+
+/** An account created this recently is new: after its first sign-in it lands on onboarding. */
+export const NEW_ACCOUNT_WINDOW_MS = 10 * 60_000;
+
+export const LOGIN_MODAL_COPY = {
+  title: (site: string) => `Đăng nhập ${site}`,
+  defaultReason: "Đăng nhập để thả reaction, bình luận và lưu chủ đề bạn quan tâm.",
+  resumeHint: "Đăng nhập xong bạn sẽ quay lại đúng chỗ này, việc đang làm dở được hoàn tất giúp bạn.",
+} as const;

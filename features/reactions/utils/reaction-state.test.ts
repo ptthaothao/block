@@ -1,0 +1,18 @@
+import { describe, expect, it } from "vitest";
+
+import { applyToggle, reactionMeta, totalReactions, usedReactions } from "./reaction-state";
+
+describe("reaction state", () => {
+  it("adds and removes the reader's pick", () => {
+    const on = applyToggle({ counts: { love: 2 }, mine: [] }, "helpful");
+    expect(on).toEqual({ counts: { love: 2, helpful: 1 }, mine: ["helpful"] });
+    expect(applyToggle(on, "helpful")).toEqual({ counts: { love: 2 }, mine: [] });
+  });
+
+  it("totals and lists used emoji in display order", () => {
+    const counts = { confused: 1, helpful: 3 };
+    expect(totalReactions(counts)).toBe(4);
+    expect(usedReactions(counts).map((r) => r.kind)).toEqual(["helpful", "confused"]);
+    expect(reactionMeta("love").emoji).toBe("❤️");
+  });
+});

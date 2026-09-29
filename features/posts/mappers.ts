@@ -1,8 +1,8 @@
 import type { RenderedMarkdown } from "@/lib/markdown/types";
 import { unwrapEmbedded } from "@/lib/supabase/embedded";
 
-import type { CategoryRow, PostDetailRow, PostSummaryRow } from "./rows";
-import type { AuthorRef, CategoryNode, PostDetail, PostSummary, TagRef } from "./types";
+import type { PostDetailRow, PostSummaryRow } from "./rows";
+import type { AuthorRef, PostDetail, PostSummary, TagRef } from "./types";
 
 function toAuthors(rows: PostSummaryRow["post_authors"]): AuthorRef[] {
   return [...rows]
@@ -49,19 +49,4 @@ export function toPostDetail(row: PostDetailRow, content: Pick<RenderedMarkdown,
     updatedAt: row.updated_at,
     series: series ? { ...series, position: row.series_position } : null,
   };
-}
-
-export function toCategoryTree(rows: CategoryRow[]): CategoryNode[] {
-  return rows
-    .filter((c) => c.parent_id === null)
-    .map((c) => ({
-      slug: c.slug,
-      name: c.name,
-      description: c.description,
-      icon: c.icon,
-      color: c.color,
-      children: rows
-        .filter((child) => child.parent_id === c.id)
-        .map((child) => ({ slug: child.slug, name: child.name })),
-    }));
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { CMS_ERROR_MESSAGES } from "../constants";
-import { describeDbError, firstIssue } from "./action-error";
+import { describeDbError } from "./action-error";
 
 describe("describeDbError", () => {
   it("maps known Postgres codes", () => {
@@ -11,12 +11,5 @@ describe("describeDbError", () => {
 
   it("falls back to a generic message", () => {
     expect(describeDbError({ code: "XX000", message: "boom" })).toBe(CMS_ERROR_MESSAGES.unknown);
-  });
-});
-
-describe("firstIssue", () => {
-  it("returns the first message", () => {
-    expect(firstIssue([{ message: "a" }, { message: "b" }])).toBe("a");
-    expect(firstIssue([])).toBe(CMS_ERROR_MESSAGES.invalid);
   });
 });

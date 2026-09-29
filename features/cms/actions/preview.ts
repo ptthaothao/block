@@ -4,8 +4,8 @@ import { authorize } from "@/features/auth/guards";
 import { renderMarkdownPreview } from "@/lib/markdown/render";
 
 import { CMS_ERROR_MESSAGES, CMS_LIMITS } from "../constants";
-import type { ActionResult } from "../types";
-import { fail, ok } from "../utils/action-error";
+import type { ActionResult } from "@/lib/actions/types";
+import { fail, ok } from "@/lib/actions/result";
 
 /**
  * Same sanitizing as the published output, but without syntax highlighting

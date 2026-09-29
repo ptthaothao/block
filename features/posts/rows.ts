@@ -7,7 +7,7 @@ type PostRow = Tables<"posts">;
 
 export type PostSummaryRow = Pick<
   PostRow,
-  "slug" | "title" | "excerpt" | "cover_url" | "level" | "reading_minutes" | "published_at"
+  "id" | "slug" | "title" | "excerpt" | "cover_url" | "level" | "reading_minutes" | "published_at"
 > & {
   category: Embedded<{
     slug: string;
@@ -30,7 +30,3 @@ export type PostDetailRow = PostSummaryRow &
     series: Embedded<{ slug: string; title: string }>;
   };
 
-export type CategoryRow = Pick<
-  Tables<"categories">,
-  "id" | "parent_id" | "slug" | "name" | "description" | "icon" | "color"
->;

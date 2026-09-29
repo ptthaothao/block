@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 
 import { isAllowedCoverUrl } from "@/lib/utils/cover-image";
 
@@ -11,7 +12,8 @@ import { SeriesNote } from "./series-note";
 const COVER_WIDTH = 1200;
 const COVER_HEIGHT = 630;
 
-export function PostHeader({ post }: { post: PostDetail }) {
+/** `children` renders under the meta line, e.g. the reaction summary. */
+export function PostHeader({ post, children }: { post: PostDetail; children?: ReactNode }) {
   return (
     <header className="border-b border-border pb-8">
       {isAllowedCoverUrl(post.coverUrl) && (
@@ -38,6 +40,7 @@ export function PostHeader({ post }: { post: PostDetail }) {
       <div className="mt-6">
         <PostMeta authors={post.authors} publishedAt={post.publishedAt} readingMinutes={post.readingMinutes} />
       </div>
+      {children}
       {post.series && <SeriesNote series={post.series} />}
     </header>
   );

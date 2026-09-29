@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { Card } from "@/components/ui/card";
 import { ROUTES } from "@/config/routes";
@@ -13,7 +14,15 @@ import { PostMeta } from "./post-meta";
 
 const COVER_ASPECT_RATIO = "16 / 9";
 
-export function PostCard({ post }: { post: PostSummary }) {
+type PostCardProps = {
+  post: PostSummary;
+  /** A short line above the card, e.g. "Vì bạn quan tâm Laravel". */
+  reason?: ReactNode;
+  /** A "⋯" menu next to the level badge. Sits above the card's own link. */
+  menu?: ReactNode;
+};
+
+export function PostCard({ post, reason, menu }: PostCardProps) {
   return (
     <Card as="article" interactive className="group relative flex flex-col gap-4 p-6">
       {isAllowedCoverUrl(post.coverUrl) && (
@@ -28,9 +37,13 @@ export function PostCard({ post }: { post: PostSummary }) {
           />
         </div>
       )}
+      {reason && <p className="-mb-1 truncate text-xs font-medium text-accent">{reason}</p>}
       <div className="flex items-center justify-between gap-3">
-        {post.category && <CategoryChip category={post.category} />}
-        <LevelBadge level={post.level} />
+        {post.category && <CategoryChip category={post.category} linked withParent />}
+        <div className="ml-auto flex items-center gap-1">
+          <LevelBadge level={post.level} />
+          {menu && <div className="relative z-10 -mr-2">{menu}</div>}
+        </div>
       </div>
 
       <h3 className="font-display text-xl font-bold leading-snug text-balance">
@@ -44,8 +57,13 @@ export function PostCard({ post }: { post: PostSummary }) {
       {post.tags.length > 0 && (
         <ul className="flex flex-wrap gap-2">
           {post.tags.slice(0, POST_LIMITS.tagsOnCard).map((tag) => (
-            <li key={tag.slug} className="font-mono text-xs text-faint">
-              #{tag.name}
+            <li key={tag.slug}>
+              <Link
+                href={ROUTES.tag(tag.slug)}
+                className="relative z-10 font-mono text-xs text-faint transition hover:text-accent"
+              >
+                #{tag.name}
+              </Link>
             </li>
           ))}
         </ul>

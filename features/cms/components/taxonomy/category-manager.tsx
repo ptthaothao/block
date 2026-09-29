@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils/cn";
 
 import { deleteCategory } from "../../actions/taxonomy";
 import { CMS_QUERY_KEYS, CONFIRM_MESSAGES, EMPTY_CATEGORY_FORM } from "../../constants";
-import { useActionMutation } from "../../hooks/use-action-mutation";
+import { useActionMutation } from "@/lib/hooks/use-action-mutation";
 import type { CategoryInput } from "../../schemas";
 import type { CmsCategory, CmsTaxonomy } from "../../types";
 import { sortCategoryTree, toCategoryForm } from "../../utils/taxonomy-form";

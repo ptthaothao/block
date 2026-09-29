@@ -1,28 +1,31 @@
 import { ButtonLink } from "@/components/ui/button";
-import { QUERY_PARAMS, ROUTES } from "@/config/routes";
 
-type PostPaginationProps = { page: number; hasNextPage: boolean };
+import type { PostFilters } from "../types";
+import { buildFilterHref, filterChanges } from "../utils/post-filters";
 
-function pageHref(page: number) {
-  return page === 0 ? ROUTES.posts : `${ROUTES.posts}?${QUERY_PARAMS.page}=${page + 1}`;
-}
+type PostPaginationProps = { basePath: string; filters: PostFilters; hasNextPage: boolean };
 
-export function PostPagination({ page, hasNextPage }: PostPaginationProps) {
+export function PostPagination({ basePath, filters, hasNextPage }: PostPaginationProps) {
+  const { page } = filters;
   if (page === 0 && !hasNextPage) return null;
+  const hrefFor = (target: number) => buildFilterHref(basePath, filterChanges.page(filters, target));
 
   return (
     <nav aria-label="Phân trang" className="mt-10 flex items-center justify-between gap-3">
       {page > 0 ? (
-        <ButtonLink href={pageHref(page - 1)} variant="outline" size="sm">
+        <ButtonLink href={hrefFor(page - 1)} variant="outline" size="sm" rel="prev" className="min-h-11">
           Trang trước
         </ButtonLink>
       ) : (
         <span />
       )}
-      {hasNextPage && (
-        <ButtonLink href={pageHref(page + 1)} variant="outline" size="sm">
+      <span className="font-mono text-xs text-faint">Trang {page + 1}</span>
+      {hasNextPage ? (
+        <ButtonLink href={hrefFor(page + 1)} variant="outline" size="sm" rel="next" className="min-h-11">
           Trang sau
         </ButtonLink>
+      ) : (
+        <span />
       )}
     </nav>
   );
