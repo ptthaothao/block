@@ -5,7 +5,7 @@ export type ReactionKind = Enums<"reaction_kind">;
 /** How many readers left each emoji; emoji nobody picked are absent. */
 export type ReactionCounts = Partial<Record<ReactionKind, number>>;
 
-/** What a reaction widget needs: counts plus the current reader's picks. */
+/** What a reaction widget needs: counts plus the current reader's pick (at most one). */
 export type ReactionState = { counts: ReactionCounts; mine: ReactionKind[] };
 
 /** Reactions on a post, as /api/posts/[slug]/reactions returns them. */

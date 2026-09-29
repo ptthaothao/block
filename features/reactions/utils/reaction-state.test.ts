@@ -9,6 +9,11 @@ describe("reaction state", () => {
     expect(applyToggle(on, "helpful")).toEqual({ counts: { love: 2 }, mine: [] });
   });
 
+  it("replaces the reader's pick instead of adding a second one", () => {
+    const switched = applyToggle({ counts: { helpful: 1, love: 2 }, mine: ["helpful"] }, "love");
+    expect(switched).toEqual({ counts: { love: 3 }, mine: ["love"] });
+  });
+
   it("totals and lists used emoji in display order", () => {
     const counts = { confused: 1, helpful: 3 };
     expect(totalReactions(counts)).toBe(4);

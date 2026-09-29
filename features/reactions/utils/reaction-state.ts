@@ -1,14 +1,21 @@
 import { REACTIONS } from "../constants";
 import type { ReactionCounts, ReactionKind, ReactionState } from "../types";
 
-/** The state after the current reader toggles one emoji (used for optimistic updates). */
+/**
+ * The state after the current reader toggles one emoji (used for optimistic updates).
+ * A reader has at most one reaction: picking another emoji replaces it, picking it again removes it.
+ */
 export function applyToggle(state: ReactionState, emoji: ReactionKind): ReactionState {
-  const had = state.mine.includes(emoji);
-  const count = (state.counts[emoji] ?? 0) + (had ? -1 : 1);
   const counts: ReactionCounts = { ...state.counts };
-  if (count > 0) counts[emoji] = count;
-  else delete counts[emoji];
-  return { counts, mine: had ? state.mine.filter((e) => e !== emoji) : [...state.mine, emoji] };
+  const bump = (kind: ReactionKind, delta: number) => {
+    const count = (counts[kind] ?? 0) + delta;
+    if (count > 0) counts[kind] = count;
+    else delete counts[kind];
+  };
+  for (const kind of state.mine) bump(kind, -1);
+  if (state.mine.includes(emoji)) return { counts, mine: [] };
+  bump(emoji, 1);
+  return { counts, mine: [emoji] };
 }
 
 export function totalReactions(counts: ReactionCounts): number {
