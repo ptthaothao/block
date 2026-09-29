@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
 
-select plan(14);
+select plan(15);
 
 truncate public.reactions, public.post_stats, public.post_tags, public.post_authors, public.posts, public.tags, public.series, public.categories cascade;
 delete from auth.users;
@@ -28,32 +28,37 @@ select is(
 );
 select is(
   (select mine from toggle_reaction('post', '40000000-0000-0000-0000-000000000001', 'love')),
-  array['helpful', 'love']::reaction_kind[],
-  'a reader can leave several different emoji'
+  array['love']::reaction_kind[],
+  'picking another emoji replaces the reader''s reaction'
+);
+select is(
+  (select reaction_counts from post_stats where post_id = '40000000-0000-0000-0000-000000000001'),
+  '{"love": 1}'::jsonb,
+  'the counters follow the switch and drop empty emoji'
 );
 select throws_ok(
   $$ insert into reactions (target_type, target_id, emoji) values ('post', '40000000-0000-0000-0000-000000000001', 'helpful') $$,
-  '23505', null, 'the same emoji cannot be added twice'
-);
-select is(
-  (select reaction_counts from post_stats where post_id = '40000000-0000-0000-0000-000000000001'),
-  '{"helpful": 1, "love": 1}'::jsonb,
-  'the counters follow inserts'
+  '23505', null, 'a reader cannot hold two reactions on one post'
 );
 select is(
   (select counts from toggle_reaction('post', '40000000-0000-0000-0000-000000000001', 'love')),
+  '{}'::jsonb,
+  'toggling the same emoji again removes it'
+);
+select is(
+  (select counts from toggle_reaction('post', '40000000-0000-0000-0000-000000000001', 'helpful')),
   '{"helpful": 1}'::jsonb,
-  'toggling again removes it'
+  'the reader can react again after removing'
 );
 select is(
   (select reaction_counts from post_stats where post_id = '40000000-0000-0000-0000-000000000001'),
   '{"helpful": 1}'::jsonb,
-  'the counters follow deletes and drop empty emoji'
+  'the counters follow inserts and deletes'
 );
 select is(
   (select array_agg(emoji order by emoji) from my_reactions('post', array['40000000-0000-0000-0000-000000000001'::uuid])),
   array['helpful']::reaction_kind[],
-  'my_reactions lists only the reader''s own picks'
+  'my_reactions lists only the reader''s own pick'
 );
 select throws_ok(
   $$ select toggle_reaction('post', '40000000-0000-0000-0000-000000000002', 'helpful') $$,

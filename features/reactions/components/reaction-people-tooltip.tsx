@@ -36,7 +36,9 @@ export function ReactionPeopleTooltip({ source, side = "top", children }: Reacti
     staleTime: REACTION_TIMINGS.peopleStaleMs,
   });
 
-  if (!source) return <>{children(undefined)}</>;
+  // The wrapper is always rendered: swapping it in and out when the count hits
+  // zero would remount the button without a blur or pointerleave, leaving `open` stuck.
+  const shown = open && source !== null;
 
   return (
     <span
@@ -46,8 +48,8 @@ export function ReactionPeopleTooltip({ source, side = "top", children }: Reacti
       onFocus={() => setOpen(true)}
       onBlur={() => setOpen(false)}
     >
-      {children(open ? id : undefined)}
-      {open && (
+      {children(shown ? id : undefined)}
+      {shown && (
         <span
           id={id}
           role="tooltip"

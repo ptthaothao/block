@@ -7,6 +7,8 @@ export const ROUTES = {
   topic: (slug: string) => `/topics/${slug}`,
   tag: (slug: string) => `/tags/${slug}`,
   login: "/login",
+  setPassword: "/set-password",
+  forgotPassword: "/forgot-password",
   authCallback: "/auth/callback",
   signOut: "/auth/signout",
   dashboard: "/dashboard",

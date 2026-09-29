@@ -1,3 +1,5 @@
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -23,7 +25,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang={SITE.lang} className={cn(fontVariables, "h-full antialiased")}>
-      <body className="flex min-h-full flex-col font-sans">
+      {/* Browser extensions (e.g. ColorZilla's cz-shortcut-listen) add attributes to <body> before hydration. Only body's own attributes are exempt; children are still checked. */}
+      <body className="flex min-h-full flex-col font-sans" suppressHydrationWarning>
         <QueryProvider>
           <ToastProvider>
             <SkipLink />
@@ -35,6 +38,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <InterestImportPrompt />
           </ToastProvider>
         </QueryProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

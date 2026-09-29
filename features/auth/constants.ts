@@ -6,17 +6,30 @@ export const LOGIN_ERROR_CODES = {
   callback: "callback",
   callbackExpired: "callback_expired",
   otp: "otp",
+  credentials: "credentials",
+  password: "password",
+  weakPassword: "weak_password",
+  resetSend: "reset_send",
+  session: "session",
 } as const;
 export type LoginErrorCode = (typeof LOGIN_ERROR_CODES)[keyof typeof LOGIN_ERROR_CODES];
+
+/** Floor for a reader's password; Supabase Auth enforces its own minimum server-side too. */
+export const PASSWORD_MIN_LENGTH = 8;
 
 export const LOGIN_ERROR_MESSAGES: Record<LoginErrorCode, string> = {
   oauth: "Không kết nối được với GitHub. Thử lại nhé.",
   email: "Email chưa đúng định dạng.",
-  send: "Chưa gửi được mã đăng nhập. Thử lại sau ít phút.",
-  rate_limited: "Đã gửi quá nhiều mã đăng nhập. Vui lòng thử lại sau khoảng một giờ.",
+  send: "Chưa gửi được mã đăng ký. Thử lại sau ít phút.",
+  rate_limited: "Đã gửi quá nhiều mã. Vui lòng thử lại sau khoảng một giờ.",
   callback: "Không xác thực được đăng nhập. Thử lại nhé.",
   callback_expired: "Liên kết đăng nhập đã hết hạn hoặc đã được dùng. Vui lòng đăng nhập lại.",
   otp: "Mã không đúng hoặc đã hết hạn. Thử lại nhé.",
+  credentials: "Email hoặc mật khẩu chưa đúng.",
+  password: `Mật khẩu cần ít nhất ${PASSWORD_MIN_LENGTH} ký tự.`,
+  weak_password: "Mật khẩu này chưa đủ mạnh, thử mật khẩu khác nhé.",
+  reset_send: "Chưa gửi được liên kết đặt lại mật khẩu. Thử lại sau ít phút.",
+  session: "Phiên đặt mật khẩu đã hết hạn. Vui lòng thử lại từ đầu.",
 };
 
 /** Supabase Auth error codes that mean the email was refused for rate limiting. */
@@ -39,11 +52,12 @@ export const OAUTH_PROVIDER = "github";
 /** 303 so a POST (sign-out form) is followed by a GET. */
 export const SEE_OTHER = 303;
 
-/** `name` attributes of the login forms. */
+/** `name` attributes of the login, registration and password forms. */
 export const LOGIN_FORM_FIELDS = {
   email: "email",
   next: "next",
   token: "token",
+  password: "password",
 } as const;
 
 /** Higher rank includes every permission of the ranks below it. */
@@ -70,4 +84,26 @@ export const LOGIN_MODAL_COPY = {
   title: (site: string) => `Đăng nhập ${site}`,
   defaultReason: "Đăng nhập để thả reaction, bình luận và lưu chủ đề bạn quan tâm.",
   resumeHint: "Đăng nhập xong bạn sẽ quay lại đúng chỗ này, việc đang làm dở được hoàn tất giúp bạn.",
+} as const;
+
+/** Copy for the /login and /set-password, /forgot-password pages. */
+export const LOGIN_COPY = {
+  signInTab: "Đăng nhập",
+  signUpTab: "Đăng ký",
+  tabsLabel: "Đăng nhập hoặc đăng ký",
+  emailLabel: "Email",
+  passwordLabel: "Mật khẩu",
+  passwordPlaceholder: "Nhập mật khẩu",
+  newPasswordLabel: "Mật khẩu mới",
+  newPasswordPlaceholder: "Ít nhất 8 ký tự",
+  signInSubmit: "Đăng nhập",
+  signUpSubmit: "Gửi mã đăng ký",
+  forgotPassword: "Quên mật khẩu?",
+  setPasswordSubmit: "Lưu mật khẩu",
+  setPasswordTitle: "Đặt mật khẩu",
+  setPasswordHint: "Đặt mật khẩu để lần sau đăng nhập không cần chờ email nữa.",
+  forgotPasswordTitle: "Quên mật khẩu",
+  forgotPasswordHint: "Nhập email đã đăng ký, chúng tôi sẽ gửi liên kết đặt lại mật khẩu.",
+  forgotPasswordSubmit: "Gửi liên kết đặt lại",
+  resetSent: "Đã gửi liên kết đặt lại mật khẩu. Kiểm tra hộp thư nhé.",
 } as const;
