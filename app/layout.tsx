@@ -23,7 +23,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang={SITE.lang} className={cn(fontVariables, "h-full antialiased")}>
-      <body className="flex min-h-full flex-col font-sans">
+      {/* Browser extensions (e.g. ColorZilla's cz-shortcut-listen) add attributes to <body> before hydration. Only body's own attributes are exempt; children are still checked. */}
+      <body className="flex min-h-full flex-col font-sans" suppressHydrationWarning>
         <QueryProvider>
           <ToastProvider>
             <SkipLink />
