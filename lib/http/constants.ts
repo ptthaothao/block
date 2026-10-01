@@ -4,6 +4,7 @@ export const HTTP_STATUS = {
   forbidden: 403,
   notFound: 404,
   tooManyRequests: 429,
+  badGateway: 502,
 } as const;
 
 /** Responses about the current user must never be cached by a CDN or the browser. */

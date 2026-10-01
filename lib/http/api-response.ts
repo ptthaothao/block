@@ -29,3 +29,8 @@ export function notFound(message: string = COMMON_ERROR_MESSAGES.notFound) {
 export function badRequest(message: string = COMMON_ERROR_MESSAGES.invalid) {
   return errorResponse(message, HTTP_STATUS.badRequest);
 }
+
+/** An upstream service (e.g. Supabase Storage) refused or failed the request. */
+export function badGateway(message: string = COMMON_ERROR_MESSAGES.unknown) {
+  return errorResponse(message, HTTP_STATUS.badGateway);
+}
