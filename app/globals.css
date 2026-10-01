@@ -22,6 +22,18 @@
   --emerald: #34d399;
   --danger: #f87171;
   --warning: #fbbf24;
+  --accent-strong: #2563eb;
+
+  /* Post editor workspace (Figma "CMS_PCCC"): darker layers than the site. */
+  --editor-base: #070d18;
+  --editor-header: #091220;
+  --editor-source: #08101e;
+  --editor-panel: #0a1424;
+  --editor-preview: #0b1628;
+  --editor-chip: #0d1c30;
+  --editor-line: #1c314f;
+  --editor-gutter: #3b5072;
+  --editor-ink: #cbd5e1;
 }
 
 @theme inline {
@@ -41,6 +53,16 @@
   --color-emerald: var(--emerald);
   --color-danger: var(--danger);
   --color-warning: var(--warning);
+  --color-accent-strong: var(--accent-strong);
+  --color-editor-base: var(--editor-base);
+  --color-editor-header: var(--editor-header);
+  --color-editor-source: var(--editor-source);
+  --color-editor-panel: var(--editor-panel);
+  --color-editor-preview: var(--editor-preview);
+  --color-editor-chip: var(--editor-chip);
+  --color-editor-line: var(--editor-line);
+  --color-editor-gutter: var(--editor-gutter);
+  --color-editor-ink: var(--editor-ink);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-be-vietnam), var(--font-inter), ui-sans-serif, sans-serif;
@@ -205,4 +227,107 @@
   to {
     background-color: transparent;
   }
+}
+
+/* Reaction picker popover: fade + rise + scale in. Skipped under prefers-reduced-motion. */
+@keyframes reaction-picker-in {
+  from {
+    transform: translateY(0.375rem) scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/*
+ * Thread connectors for nested comments.
+ *
+ * Each comment row has a rail under its avatar (.comment-spine, shown only when
+ * the comment has a branch). Every node in a .comment-branch draws, in its own
+ * box: ::before = the spine's last stretch plus a rounded elbow into its avatar,
+ * ::after = the spine continuing to the next sibling (not on the last node).
+ * Nothing is measured in JS; --avatar-size is set on the article from AVATAR_SIZES.
+ */
+.comment-item {
+  --avatar-size: 2rem;
+  --avatar-gap: 0.75rem;
+  --indent: calc(var(--avatar-size) + var(--avatar-gap));
+  --node-gap: 1rem;
+  --connector-width: 1.5px;
+  --connector-radius: 0.75rem;
+  --connector-color: var(--border-strong);
+  /* From the parent's spine to the left edge of a child's avatar. */
+  --elbow-run: calc(var(--indent) - var(--avatar-size) / 2 + var(--connector-width) / 2);
+  --spine-left: calc(var(--avatar-size) / 2 - var(--indent) - var(--connector-width) / 2);
+}
+
+.comment-row {
+  display: flex;
+  gap: var(--avatar-gap);
+}
+
+.comment-rail {
+  display: flex;
+  width: var(--avatar-size);
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: center;
+}
+
+.comment-avatar-placeholder {
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  flex-shrink: 0;
+  border-radius: 9999px;
+  border: 1px dashed var(--border);
+}
+
+.comment-spine {
+  display: none;
+  flex: 1;
+  width: var(--connector-width);
+  margin-top: 0.25rem;
+  background: var(--connector-color);
+  pointer-events: none;
+}
+
+.comment-item:has(> .comment-branch > *) > .comment-row > .comment-rail > .comment-spine {
+  display: block;
+}
+
+.comment-branch {
+  margin-left: var(--indent);
+}
+
+.comment-branch > * {
+  position: relative;
+  padding-top: var(--node-gap);
+}
+
+.comment-branch > *::before,
+.comment-branch > *::after {
+  content: "";
+  position: absolute;
+  left: var(--spine-left);
+  pointer-events: none;
+  border-left: var(--connector-width) solid var(--connector-color);
+}
+
+.comment-branch > *::before {
+  top: 0;
+  width: var(--elbow-run);
+  height: calc(var(--node-gap) + var(--avatar-size) / 2 + var(--connector-width) / 2);
+  border-bottom: var(--connector-width) solid var(--connector-color);
+  border-bottom-left-radius: var(--connector-radius);
+}
+
+.comment-branch > *::after {
+  top: calc(var(--node-gap) + var(--avatar-size) / 2);
+  bottom: 0;
+}
+
+.comment-branch > :last-child::after {
+  display: none;
 }

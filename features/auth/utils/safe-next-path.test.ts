@@ -4,7 +4,7 @@ import { safeNextPath } from "./safe-next-path";
 
 describe("safeNextPath", () => {
   it("keeps relative paths", () => {
-    expect(safeNextPath("/dashboard/posts?x=1")).toBe("/dashboard/posts?x=1");
+    expect(safeNextPath("/cms/posts?x=1")).toBe("/cms/posts?x=1");
   });
 
   it.each(["https://evil.test", "//evil.test", "/\\evil.test", "dashboard", undefined, 42])(

@@ -9,7 +9,7 @@ import type { Json, TablesUpdate } from "@/types/database";
 
 import { CMS_ERROR_MESSAGES } from "../constants";
 import { toPostColumns, toSavedPost } from "../mappers";
-import { postIdSchema, postInputSchema, reviewNoteSchema, type PostInput } from "../schemas";
+import { categoryIdSchema, postIdSchema, postInputSchema, reviewNoteSchema, type PostInput } from "../schemas";
 import { CMS_SAVED_POST_SELECT } from "../selects";
 import { syncPostTags } from "../services/post-tags";
 import { refreshPublicPost } from "../services/revalidate";
@@ -66,10 +66,12 @@ export async function submitForReview(id: string): Promise<ActionResult<SavedPos
   return updateStatus(id, { status: "review" });
 }
 
-export async function publishPost(id: string): Promise<ActionResult<SavedPost>> {
+/** Publish a post; `categoryId` lets the reviewer move it to another category on the way out. */
+export async function publishPost(id: string, categoryId?: number): Promise<ActionResult<SavedPost>> {
   const user = await authorize("editor");
   if (!user) return fail(CMS_ERROR_MESSAGES.forbidden);
   if (!postIdSchema.safeParse(id).success) return fail(CMS_ERROR_MESSAGES.notFound);
+  if (categoryId !== undefined && !categoryIdSchema.safeParse(categoryId).success) return fail(CMS_ERROR_MESSAGES.invalid);
 
   const supabase = await createClient();
   const { data: post, error } = await supabase.from("posts").select("content_md").eq("id", id).maybeSingle();
@@ -83,6 +85,7 @@ export async function publishPost(id: string): Promise<ActionResult<SavedPost>> 
     toc: rendered.toc as NonNullable<Json>,
     reading_minutes: rendered.readingMinutes,
     review_note: null,
+    ...(categoryId !== undefined && { category_id: categoryId }),
   });
   if (result.ok) refreshPublicPost(result.data.slug);
   return result;
@@ -117,7 +120,7 @@ export async function deletePost(id: string): Promise<ActionResult<null>> {
   return ok(null);
 }
 
-type StatusUpdate = Pick<TablesUpdate<"posts">, "content_html" | "toc" | "reading_minutes" | "review_note"> & {
+type StatusUpdate = Pick<TablesUpdate<"posts">, "content_html" | "toc" | "reading_minutes" | "review_note" | "category_id"> & {
   status: SavedPost["status"];
 };
 

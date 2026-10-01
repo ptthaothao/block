@@ -15,8 +15,8 @@ describe("buildLoginPath", () => {
 
 describe("buildCallbackUrl", () => {
   it("points at the auth callback with next", () => {
-    expect(buildCallbackUrl("https://codelog.dev", "/dashboard")).toBe(
-      "https://codelog.dev/auth/callback?next=%2Fdashboard",
+    expect(buildCallbackUrl("https://codelog.dev", "/cms")).toBe(
+      "https://codelog.dev/auth/callback?next=%2Fcms",
     );
   });
 });

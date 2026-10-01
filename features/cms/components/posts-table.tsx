@@ -26,7 +26,7 @@ export function PostsTable({ posts, showAuthor }: PostsTableProps) {
           {posts.map((post) => (
             <tr key={post.id} className="hover:bg-surface/60">
               <td className="px-4 py-3">
-                <TextLink href={ROUTES.dashboardEditPost(post.id)} className="font-medium text-text hover:text-accent">
+                <TextLink href={ROUTES.cmsEditPost(post.id)} className="font-medium text-text hover:text-accent">
                   {post.title}
                 </TextLink>
                 {post.categoryName && <p className="mt-0.5 font-mono text-xs text-faint">{post.categoryName}</p>}

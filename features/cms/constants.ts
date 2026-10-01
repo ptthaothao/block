@@ -1,7 +1,7 @@
 import { COMMON_ERROR_MESSAGES } from "@/lib/actions/constants";
 
 import type { CategoryInput, SeriesInput } from "./schemas";
-import type { PostFormValues, PostLevel, PostStatus, SaveState, TagStatus } from "./types";
+import type { MarkdownFormat, PostFormValues, PostLevel, PostStatus, SaveState, TagStatus } from "./types";
 
 export const CMS_LIMITS = {
   postList: 100,
@@ -133,3 +133,132 @@ export const CONFIRM_MESSAGES = {
   deleteSeries: "Xoá series này? Các bài trong series vẫn được giữ lại.",
   mergeTag: "Gộp tag này vào tag đã chọn? Tag hiện tại sẽ bị xoá.",
 } as const;
+
+/** Copy for the CMS shell (sidebar, topbar, mobile drawer). */
+export const CMS_SHELL_COPY = {
+  brand: "CMS",
+  navLabel: "Quản trị",
+  openMenu: "Mở menu quản trị",
+  menuTitle: "Menu quản trị",
+  viewSite: "Xem trang",
+  collapseSidebar: "Thu gọn menu",
+  expandSidebar: "Mở rộng menu",
+} as const;
+
+/** localStorage: the desktop sidebar is collapsed to an icon rail. */
+export const CMS_SIDEBAR_COLLAPSED_KEY = "codelog:cms-sidebar-collapsed";
+
+/** Icons exported from the editor's Figma design (public/icons/cms-editor). */
+/** Icons exported from the editor's Figma design (public/icons/cms-editor), at their native size in px. */
+export const EDITOR_ICONS = {
+  adjustments: { src: "/icons/cms-editor/adjustments.svg", size: 16 },
+  barsBottomRight: { src: "/icons/cms-editor/bars-bottom-right.svg", size: 14 },
+  chevronDown: { src: "/icons/cms-editor/chevron-down.svg", size: 14 },
+  chevronDownSmall: { src: "/icons/cms-editor/chevron-down-small.svg", size: 12 },
+  cloudUpload: { src: "/icons/cms-editor/cloud-upload.svg", size: 14 },
+  code: { src: "/icons/cms-editor/code.svg", size: 14 },
+  copySmall: { src: "/icons/cms-editor/copy-small.svg", size: 12 },
+  image: { src: "/icons/cms-editor/image.svg", size: 14 },
+  info: { src: "/icons/cms-editor/info.svg", size: 12 },
+  link: { src: "/icons/cms-editor/link.svg", size: 14 },
+  list: { src: "/icons/cms-editor/list.svg", size: 14 },
+  pencil: { src: "/icons/cms-editor/pencil.svg", size: 12 },
+  quote: { src: "/icons/cms-editor/quote.svg", size: 14 },
+  search: { src: "/icons/cms-editor/search.svg", size: 14 },
+  table: { src: "/icons/cms-editor/table.svg", size: 14 },
+  upload: { src: "/icons/cms-editor/upload.svg", size: 20 },
+} as const;
+export type EditorIconName = keyof typeof EDITOR_ICONS;
+
+export const MARKDOWN_FORMATS = {
+  h1: { kind: "line", prefix: "# " },
+  h2: { kind: "line", prefix: "## " },
+  h3: { kind: "line", prefix: "### " },
+  bold: { kind: "wrap", before: "**", after: "**", placeholder: "chữ đậm" },
+  italic: { kind: "wrap", before: "_", after: "_", placeholder: "chữ nghiêng" },
+  strike: { kind: "wrap", before: "~~", after: "~~", placeholder: "gạch ngang" },
+  code: { kind: "wrap", before: "`", after: "`", placeholder: "code" },
+  codeBlock: { kind: "wrap", before: "```ts\n", after: "\n```", placeholder: "// code" },
+  quote: { kind: "line", prefix: "> " },
+  link: { kind: "wrap", before: "[", after: "](https://)", placeholder: "liên kết" },
+  image: { kind: "wrap", before: "![", after: "](https://)", placeholder: "mô tả ảnh" },
+  list: { kind: "line", prefix: "- " },
+  table: { kind: "block", snippet: "| Cột 1 | Cột 2 |\n| --- | --- |\n| | |\n" },
+} as const satisfies Record<string, MarkdownFormat>;
+export type MarkdownFormatId = keyof typeof MARKDOWN_FORMATS;
+
+type ToolbarButton = { format: MarkdownFormatId; label: string } & (
+  | { text: string; textClassName: string }
+  | { icon: EditorIconName }
+);
+
+/** Markdown toolbar, in groups split by a divider. */
+export const MARKDOWN_TOOLBAR: readonly (readonly ToolbarButton[])[] = [
+  [
+    { format: "h1", label: "Tiêu đề 1", text: "H1", textClassName: "font-mono font-semibold" },
+    { format: "h2", label: "Tiêu đề 2", text: "H2", textClassName: "font-mono font-semibold" },
+    { format: "h3", label: "Tiêu đề 3", text: "H3", textClassName: "font-mono font-semibold" },
+  ],
+  [
+    { format: "bold", label: "In đậm (Ctrl+B)", text: "B", textClassName: "font-bold" },
+    { format: "italic", label: "In nghiêng (Ctrl+I)", text: "I", textClassName: "font-serif italic" },
+    { format: "strike", label: "Gạch ngang", text: "S", textClassName: "line-through" },
+  ],
+  [
+    { format: "code", label: "Code trong dòng", icon: "code" },
+    { format: "codeBlock", label: "Khối code", icon: "barsBottomRight" },
+    { format: "quote", label: "Trích dẫn", icon: "quote" },
+    { format: "link", label: "Liên kết (Ctrl+K)", icon: "link" },
+    { format: "image", label: "Ảnh", icon: "image" },
+  ],
+  [
+    { format: "list", label: "Danh sách", icon: "list" },
+    { format: "table", label: "Bảng", icon: "table" },
+  ],
+];
+
+/** Ctrl/Cmd + key in the markdown editor. */
+export const MARKDOWN_SHORTCUTS: Readonly<Record<string, MarkdownFormatId>> = {
+  b: "bold",
+  i: "italic",
+  k: "link",
+};
+
+/** Tag chips cycle through these tones, in order. */
+export const TAG_CHIP_TONES = [
+  "border-accent/30 bg-accent/15 text-accent-hover",
+  "border-sky/30 bg-sky/15 text-sky",
+  "border-emerald/30 bg-emerald/15 text-emerald",
+  "border-violet/30 bg-violet/15 text-violet",
+] as const;
+
+/** Between a parent and child category, e.g. "Frontend › Next.js". */
+export const CATEGORY_PATH_SEPARATOR = " › ";
+
+/** Line numbers in the markdown gutter are padded to this many digits. */
+export const LINE_NUMBER_DIGITS = 2;
+
+/** What the save line under the editor says before anything has been saved this session. */
+export const IDLE_SAVE_HINTS = {
+  unsaved: "Bấm Lưu để tạo bản nháp, sau đó bài sẽ tự lưu",
+  autosave: "Tự động lưu khi có thay đổi",
+  readOnly: "Chế độ chỉ xem",
+} as const;
+
+/** Where post cover images are uploaded in Supabase Storage. */
+export const COVER_IMAGE_STORAGE = { bucket: "post", path: "cover" } as const;
+
+/** Automatic checks on a post waiting for review (utils/review-checks). */
+export const REVIEW_RULES = {
+  titleMinChars: 5,
+  minWords: 500,
+} as const;
+
+/** Leading characters of a post id shown in the review header. */
+export const REVIEW_SHORT_ID_LENGTH = 8;
+
+/** Quick notes the reviewer can add to the "return to author" note. */
+export const REVIEW_NOTE_TEMPLATES = [
+  { label: "Quá ngắn / thiếu nội dung", text: "Bài còn ngắn, bạn bổ sung thêm phần giải thích và ví dụ giúp mình nhé." },
+  { label: "Thiếu giải thích code", text: "Các đoạn code cần thêm giải thích ngắn: đoạn code làm gì và vì sao viết như vậy." },
+] as const;

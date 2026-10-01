@@ -15,9 +15,9 @@ type SheetProps = {
   /**
    * "bottom" slides up from the bottom (mobile); "full" covers the whole screen
    * (composer on mobile); "dialog" is a bottom sheet on phones and a centred
-   * modal from `sm` up.
+   * modal from `sm` up; "side" is a full-height drawer on the left (nav menus).
    */
-  variant?: "bottom" | "full" | "dialog";
+  variant?: "bottom" | "full" | "dialog" | "side";
   closeLabel?: string;
 };
 
@@ -25,6 +25,7 @@ const VARIANTS = {
   bottom: "mt-auto max-h-[85dvh] rounded-t-xl",
   full: "h-dvh max-h-dvh",
   dialog: "mt-auto max-h-[85dvh] rounded-t-xl sm:m-auto sm:max-w-md sm:rounded-xl",
+  side: "h-dvh max-h-dvh w-72 max-w-[85vw] border-y-0 border-l-0",
 } as const;
 
 /**

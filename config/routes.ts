@@ -11,13 +11,13 @@ export const ROUTES = {
   forgotPassword: "/forgot-password",
   authCallback: "/auth/callback",
   signOut: "/auth/signout",
-  dashboard: "/dashboard",
-  dashboardPosts: "/dashboard/posts",
-  dashboardNewPost: "/dashboard/posts/new",
-  dashboardEditPost: (id: string) => `/dashboard/posts/${id}`,
-  dashboardReview: "/dashboard/review",
-  dashboardTaxonomy: "/dashboard/taxonomy",
-  dashboardModeration: "/dashboard/moderation",
+  cms: "/cms",
+  cmsPosts: "/cms/posts",
+  cmsNewPost: "/cms/posts/new",
+  cmsEditPost: (id: string) => `/cms/posts/${id}`,
+  cmsReview: "/cms/review",
+  cmsTaxonomy: "/cms/taxonomy",
+  cmsModeration: "/cms/moderation",
   me: "/me",
   meInterests: "/me/interests",
   onboarding: "/onboarding",
@@ -32,6 +32,8 @@ export const API_ROUTES = {
   postReactionPeople: (slug: string, emoji: string) => `/api/posts/${slug}/reactions/${emoji}/people`,
   postComments: (slug: string) => `/api/posts/${slug}/comments`,
   commentReplies: (id: string) => `/api/comments/${id}/replies`,
+  /** POST multipart: the one write that is a route, since Server Actions run one at a time and cap bodies at 1MB. */
+  storageImages: "/api/storage/images",
 } as const;
 
 /** Read endpoints behind the CMS (BFF). Writes go through Server Actions. */
@@ -47,7 +49,7 @@ export const CMS_API_ROUTES = {
 export const TOPICS_SECTION_ID = "chu-de";
 
 /** Routes that need a signed-in user; the proxy redirects to login otherwise. */
-export const PROTECTED_ROUTE_PREFIXES = [ROUTES.dashboard, ROUTES.me] as const;
+export const PROTECTED_ROUTE_PREFIXES = [ROUTES.cms, ROUTES.me] as const;
 
 /** Query-string keys shared by login, callback and proxy. */
 export const QUERY_PARAMS = {

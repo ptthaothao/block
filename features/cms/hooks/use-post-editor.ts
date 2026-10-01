@@ -79,7 +79,7 @@ export function usePostEditor(post: CmsPost | null) {
     setError(null);
     setSaveState("saved");
     setSaved(result.data);
-    if (!saved) router.replace(ROUTES.dashboardEditPost(result.data.id));
+    if (!saved) router.replace(ROUTES.cmsEditPost(result.data.id));
     await refreshLists(result.data);
     return result.data;
   }, [saved, values, router, refreshLists]);

@@ -35,3 +35,13 @@ export function diffTagIds(current: number[], next: number[]) {
     toRemove: current.filter((id) => !nextSet.has(id)),
   };
 }
+
+/**
+ * Add what the author typed to the current tags: split on the separator,
+ * skip slugs already there and stop at `max`.
+ */
+export function addTagNames(current: string[], draft: string, max: number): string[] {
+  return normalizeTagNames([...current, ...parseTagInput(draft)])
+    .map((tag) => tag.name)
+    .slice(0, max);
+}

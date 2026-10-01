@@ -1,107 +1,64 @@
-import { Card } from "@/components/ui/card";
-import { Field } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-
-import { CMS_LIMITS, POST_LEVEL_OPTIONS } from "../../constants";
+import { CMS_LIMITS } from "../../constants";
 import type { PostEditorState } from "../../hooks/use-post-editor";
-import type { CmsTaxonomy, PostLevel } from "../../types";
-import { toOptionalNumber } from "../../utils/post-form";
+import type { CmsTaxonomy } from "../../types";
 import { CategorySelect } from "./category-select";
+import { CoverField } from "./settings/cover-field";
+import { LevelField } from "./settings/level-field";
+import { SeoSection } from "./settings/seo-section";
+import { SeriesField } from "./settings/series-field";
+import { SettingsLabel, SettingsSection, SettingsTextarea } from "./settings/settings-controls";
+import { TagField } from "./settings/tag-field";
 
-const FIELD_IDS = {
-  category: "post-category",
-  level: "post-level",
-  tags: "post-tags",
-  series: "post-series",
-  seriesPosition: "post-series-position",
-  excerpt: "post-excerpt",
-  cover: "post-cover",
-  seoTitle: "post-seo-title",
-  seoDescription: "post-seo-description",
-} as const;
+const FIELD_IDS = { category: "post-category", excerpt: "post-excerpt" } as const;
 
 const EXCERPT_ROWS = 3;
 
-type PostSettingsProps = { editor: PostEditorState; taxonomy: CmsTaxonomy };
+type PostSettingsProps = { editor: PostEditorState; taxonomy: CmsTaxonomy; siteUrl: string };
 
-export function PostSettings({ editor, taxonomy }: PostSettingsProps) {
+/** The settings sidebar's sections, from cover image down to the search preview. */
+export function PostSettings({ editor, taxonomy, siteUrl }: PostSettingsProps) {
   const { values, update, canEdit } = editor;
   const disabled = !canEdit;
 
   return (
-    <Card className="space-y-5 p-5">
-      <Field id={FIELD_IDS.category} label="Danh mục">
-        <CategorySelect
-          id={FIELD_IDS.category}
-          categories={taxonomy.categories}
-          value={values.categoryId}
-          onChange={(v) => update("categoryId", v)}
-          disabled={disabled}
-        />
-      </Field>
+    <>
+      <CoverField value={values.coverUrl} onChange={(v) => update("coverUrl", v)} disabled={disabled} />
 
-      <Field id={FIELD_IDS.level} label="Cấp độ">
-        <Select
-          id={FIELD_IDS.level}
-          value={values.level}
-          disabled={disabled}
-          onChange={(e) => update("level", e.target.value as PostLevel)}
-        >
-          {POST_LEVEL_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </Select>
-      </Field>
-
-      <Field
-        id={FIELD_IDS.tags}
-        label="Tag"
-        hint={`Cách nhau bằng dấu phẩy, tối đa ${CMS_LIMITS.tagsPerPost}. Tag mới sẽ chờ biên tập viên duyệt.`}
-      >
-        <Input
-          id={FIELD_IDS.tags}
-          value={values.tagsText}
-          disabled={disabled}
-          onChange={(e) => update("tagsText", e.target.value)}
-          placeholder="nextjs, react"
-        />
-      </Field>
-
-      <div className="grid grid-cols-[1fr_5rem] gap-3">
-        <Field id={FIELD_IDS.series} label="Series">
-          <Select
-            id={FIELD_IDS.series}
-            value={values.seriesId ?? ""}
+      <SettingsSection className="gap-4">
+        <div className="flex flex-col gap-1.5">
+          <SettingsLabel htmlFor={FIELD_IDS.category}>Danh mục chuyên môn</SettingsLabel>
+          <CategorySelect
+            id={FIELD_IDS.category}
+            categories={taxonomy.categories}
+            value={values.categoryId}
+            onChange={(v) => update("categoryId", v)}
             disabled={disabled}
-            onChange={(e) => update("seriesId", toOptionalNumber(e.target.value))}
-          >
-            <option value="">Không thuộc series</option>
-            {taxonomy.series.map((series) => (
-              <option key={series.id} value={series.id}>
-                {series.title}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <Field id={FIELD_IDS.seriesPosition} label="Phần">
-          <Input
-            id={FIELD_IDS.seriesPosition}
-            type="number"
-            min={1}
-            value={values.seriesPosition ?? ""}
-            disabled={disabled || !values.seriesId}
-            onChange={(e) => update("seriesPosition", toOptionalNumber(e.target.value))}
-            className="px-3 py-2.5"
           />
-        </Field>
-      </div>
+        </div>
+        <LevelField value={values.level} onChange={(v) => update("level", v)} disabled={disabled} />
+        <TagField value={values.tagsText} onChange={(v) => update("tagsText", v)} disabled={disabled} />
+      </SettingsSection>
 
-      <Field id={FIELD_IDS.excerpt} label="Tóm tắt" hint={`Tối đa ${CMS_LIMITS.excerptMax} ký tự.`}>
-        <Textarea
+      <SettingsSection>
+        <SeriesField
+          series={taxonomy.series}
+          seriesId={values.seriesId}
+          position={values.seriesPosition}
+          onSeriesChange={(v) => update("seriesId", v)}
+          onPositionChange={(v) => update("seriesPosition", v)}
+          disabled={disabled}
+        />
+      </SettingsSection>
+
+      <SettingsSection className="gap-2 pb-[25px]">
+        <SettingsLabel
+          htmlFor={FIELD_IDS.excerpt}
+          meta={`${values.excerpt.length} / ${CMS_LIMITS.excerptMax}`}
+          metaClassName="font-mono text-accent"
+        >
+          Tóm tắt bài viết (Excerpt)
+        </SettingsLabel>
+        <SettingsTextarea
           id={FIELD_IDS.excerpt}
           rows={EXCERPT_ROWS}
           maxLength={CMS_LIMITS.excerptMax}
@@ -109,39 +66,9 @@ export function PostSettings({ editor, taxonomy }: PostSettingsProps) {
           disabled={disabled}
           onChange={(e) => update("excerpt", e.target.value)}
         />
-      </Field>
+      </SettingsSection>
 
-      <Field id={FIELD_IDS.cover} label="Ảnh bìa" hint="Link ảnh đã tải lên kho lưu trữ.">
-        <Input
-          id={FIELD_IDS.cover}
-          type="url"
-          value={values.coverUrl}
-          disabled={disabled}
-          onChange={(e) => update("coverUrl", e.target.value)}
-          placeholder="https://…supabase.co/storage/v1/object/public/…"
-        />
-      </Field>
-
-      <Field id={FIELD_IDS.seoTitle} label="Tiêu đề SEO" hint={`Tối đa ${CMS_LIMITS.seoTitleMax} ký tự.`}>
-        <Input
-          id={FIELD_IDS.seoTitle}
-          maxLength={CMS_LIMITS.seoTitleMax}
-          value={values.seoTitle}
-          disabled={disabled}
-          onChange={(e) => update("seoTitle", e.target.value)}
-        />
-      </Field>
-
-      <Field id={FIELD_IDS.seoDescription} label="Mô tả SEO" hint={`Tối đa ${CMS_LIMITS.seoDescriptionMax} ký tự.`}>
-        <Textarea
-          id={FIELD_IDS.seoDescription}
-          rows={EXCERPT_ROWS}
-          maxLength={CMS_LIMITS.seoDescriptionMax}
-          value={values.seoDescription}
-          disabled={disabled}
-          onChange={(e) => update("seoDescription", e.target.value)}
-        />
-      </Field>
-    </Card>
+      <SeoSection editor={editor} siteUrl={siteUrl} />
+    </>
   );
 }

@@ -10,7 +10,7 @@ import { buildLoginPath } from "./utils/login-url";
 import { hasRole } from "./utils/roles";
 
 /** For layouts and pages: redirect when the user lacks the role. */
-export async function requireRole(min: Role, next: string = ROUTES.dashboard): Promise<SessionUser> {
+export async function requireRole(min: Role, next: string = ROUTES.cms): Promise<SessionUser> {
   const user = await getSessionUser();
   if (!user) redirect(buildLoginPath({ next }));
   if (!hasRole(user.role, min)) redirect(ROUTES.home);

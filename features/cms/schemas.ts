@@ -34,6 +34,8 @@ const id = z.number().int().positive();
 
 export const postIdSchema = z.uuid();
 
+export const categoryIdSchema = id;
+
 export const postStatusFilterSchema = z.enum(POST_STATUSES).nullable();
 
 export const postOffsetSchema = z.number().int().min(0);

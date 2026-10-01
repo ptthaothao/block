@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.supabase.co", pathname: "/storage/v1/object/public/**" },
     ],
   },
+  // The CMS moved from /dashboard to /cms; keep old bookmarks and links working.
+  async redirects() {
+    return [{ source: "/dashboard/:path*", destination: "/cms/:path*", permanent: true }];
+  },
 };
 
 export default nextConfig;

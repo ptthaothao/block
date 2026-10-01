@@ -1,3 +1,5 @@
+import { ClipboardCheck, FileText, MessageSquareWarning, Tags, type LucideIcon } from "lucide-react";
+
 import type { Role } from "@/features/auth/types";
 
 import { ROUTES } from "./routes";
@@ -23,12 +25,25 @@ export const FOOTER_NAV: { title: string; items: NavItem[] }[] = [
   },
 ];
 
-export type DashboardNavItem = NavItem & { minRole: Role };
+export type CmsNavLink = NavItem & { minRole: Role; icon?: LucideIcon };
 
-export const DASHBOARD_NAV: DashboardNavItem[] = [
-  { href: ROUTES.dashboardPosts, label: "Bài viết", minRole: "author" },
-  { href: ROUTES.dashboardNewPost, label: "Viết bài mới", minRole: "author" },
-  { href: ROUTES.dashboardReview, label: "Duyệt bài", minRole: "editor" },
-  { href: ROUTES.dashboardTaxonomy, label: "Phân loại", minRole: "editor" },
-  { href: ROUTES.dashboardModeration, label: "Kiểm duyệt", minRole: "editor" },
+/** A collapsible section of the CMS sidebar; hidden when none of its links are visible. */
+export type CmsNavGroup = { id: string; label: string; icon: LucideIcon; children: CmsNavLink[] };
+
+export type CmsNavEntry = CmsNavLink | CmsNavGroup;
+
+/** The CMS sidebar. Each link declares the lowest role that may see it; the pages enforce the same role. */
+export const CMS_NAV: CmsNavEntry[] = [
+  {
+    id: "posts",
+    label: "Bài viết",
+    icon: FileText,
+    children: [
+      { href: ROUTES.cmsPosts, label: "Bài của tôi", minRole: "author" },
+      { href: ROUTES.cmsNewPost, label: "Viết bài mới", minRole: "author" },
+    ],
+  },
+  { href: ROUTES.cmsReview, label: "Duyệt bài", icon: ClipboardCheck, minRole: "editor" },
+  { href: ROUTES.cmsTaxonomy, label: "Phân loại", icon: Tags, minRole: "editor" },
+  { href: ROUTES.cmsModeration, label: "Kiểm duyệt bình luận", icon: MessageSquareWarning, minRole: "editor" },
 ];

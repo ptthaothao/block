@@ -22,5 +22,5 @@ export async function proxy(request: NextRequest) {
 // Only session-aware routes run the proxy, so public pages stay static (ISR).
 // Next.js requires this matcher to be a literal; keep it in sync with ROUTES.
 export const config = {
-  matcher: ["/dashboard/:path*", "/me/:path*", "/auth/:path*", "/api/:path*", "/login"],
+  matcher: ["/cms/:path*", "/me/:path*", "/auth/:path*", "/api/:path*", "/login"],
 };

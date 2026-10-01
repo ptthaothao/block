@@ -1,6 +1,6 @@
-import { Select } from "@/components/ui/select";
-
+import { CATEGORY_PATH_SEPARATOR } from "../../constants";
 import type { CmsCategory } from "../../types";
+import { SettingsSelect } from "./settings/settings-controls";
 
 type CategorySelectProps = {
   id: string;
@@ -14,7 +14,7 @@ type CategorySelectProps = {
 export function CategorySelect({ id, categories, value, onChange, disabled }: CategorySelectProps) {
   const parents = categories.filter((c) => c.parentId === null);
   return (
-    <Select
+    <SettingsSelect
       id={id}
       value={value ?? ""}
       disabled={disabled}
@@ -35,12 +35,12 @@ export function CategorySelect({ id, categories, value, onChange, disabled }: Ca
             <option value={parent.id}>{parent.name} (chung)</option>
             {children.map((child) => (
               <option key={child.id} value={child.id}>
-                {child.name}
+                {`${parent.name}${CATEGORY_PATH_SEPARATOR}${child.name}`}
               </option>
             ))}
           </optgroup>
         );
       })}
-    </Select>
+    </SettingsSelect>
   );
 }

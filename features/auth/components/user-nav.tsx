@@ -31,7 +31,7 @@ export function UserNav() {
   const items: MenuItem[] = [
     { id: "interests", label: USER_NAV_COPY.interests, href: ROUTES.meInterests, icon: <Sparkles className={ICON_CLASS} /> },
     ...(hasRole(user.role, "author")
-      ? [{ id: "dashboard", label: USER_NAV_COPY.dashboard, href: ROUTES.dashboard, icon: <LayoutDashboard className={ICON_CLASS} /> }]
+      ? [{ id: "dashboard", label: USER_NAV_COPY.dashboard, href: ROUTES.cms, icon: <LayoutDashboard className={ICON_CLASS} /> }]
       : []),
     { id: "sign-out", label: USER_NAV_COPY.signOut, onSelect: () => signOutForm.current?.requestSubmit(), icon: <LogOut className={ICON_CLASS} /> },
   ];

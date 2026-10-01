@@ -92,3 +92,12 @@ export type PostFormValues = {
 };
 
 export type SaveState = "idle" | "dirty" | "saving" | "saved" | "error";
+
+/** One markdown toolbar action, applied by utils/markdown-format. */
+export type MarkdownFormat =
+  | { kind: "wrap"; before: string; after: string; placeholder: string }
+  | { kind: "line"; prefix: string }
+  | { kind: "block"; snippet: string };
+
+/** Textarea content and selection after an edit. */
+export type TextEdit = { text: string; selectionStart: number; selectionEnd: number };
