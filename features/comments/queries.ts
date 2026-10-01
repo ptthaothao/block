@@ -109,7 +109,7 @@ export async function getCommentPage(slug: string, sort: CommentSort, page: numb
   const rootIds = ranked.map((r) => r.id);
   const [rootResult, replyResult] = await Promise.all([
     selectComments(supabase).in("id", rootIds),
-    selectComments(supabase).in("parent_id", rootIds).order("created_at"),
+    selectComments(supabase).in("root_id", rootIds).order("created_at"),
   ]);
   const roots = rowsOrThrow(rootResult, "getCommentPage");
   const replies = rowsOrThrow(replyResult, "getCommentPage");
@@ -117,9 +117,9 @@ export async function getCommentPage(slug: string, sort: CommentSort, page: numb
   // Only the first few replies per thread travel with the page.
   const perRoot = new Map<string, CommentRow[]>();
   for (const reply of replies) {
-    if (!reply.parent_id) continue;
-    const list = perRoot.get(reply.parent_id) ?? [];
-    if (list.length < COMMENT_LIMITS.repliesPreview) perRoot.set(reply.parent_id, [...list, reply]);
+    if (!reply.root_id) continue;
+    const list = perRoot.get(reply.root_id) ?? [];
+    if (list.length < COMMENT_LIMITS.repliesPreview) perRoot.set(reply.root_id, [...list, reply]);
   }
   const shownReplies = [...perRoot.values()].flat();
 
@@ -130,7 +130,7 @@ export async function getCommentPage(slug: string, sort: CommentSort, page: numb
   const byId = new Map(rootDTOs.map((c) => [c.id, c]));
   const threads: CommentThread[] = rootIds.flatMap((id) => {
     const root = byId.get(id);
-    return root ? [{ ...root, replies: replyDTOs.filter((r) => r.parentId === id) }] : [];
+    return root ? [{ ...root, replies: replyDTOs.filter((r) => r.rootId === id) }] : [];
   });
 
   const total = ranked[0].total_count;
@@ -145,7 +145,7 @@ export async function getCommentReplies(rootId: string): Promise<CommentDTO[] | 
   const [context, viewer, result] = await Promise.all([
     getPostContextById(supabase, root.post_id),
     currentViewer(),
-    selectComments(supabase).eq("parent_id", rootId).order("created_at"),
+    selectComments(supabase).eq("root_id", rootId).order("created_at"),
   ]);
   const rows = rowsOrThrow(result, "getCommentReplies");
   if (!context) return null;

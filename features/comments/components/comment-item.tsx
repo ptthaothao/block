@@ -1,9 +1,9 @@
 "use client";
 
 import { EyeOff, Flag, Pencil, Pin, PinOff, Trash2 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AVATAR_SIZES } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Menu, type MenuItem } from "@/components/ui/menu";
 import { ROUTES } from "@/config/routes";
@@ -17,10 +17,13 @@ import { cn } from "@/lib/utils/cn";
 import { deleteComment, editComment, setCommentHidden, setCommentPinned } from "../actions";
 import { COMMENT_ANCHOR_PREFIX, COMMENT_COPY, COMMENT_STATUS_TONES } from "../constants";
 import type { CommentDTO } from "../types";
+import { CommentBranch, CommentNode } from "./comment-branch";
 import { CommentEditor } from "./comment-editor";
 import { ReportDialog } from "./report-dialog";
 
 const ICON_CLASS = "size-4";
+/** The avatar size every connector is measured from (see .comment-item in globals.css). */
+const AVATAR_SIZE = "md";
 
 type CommentItemProps = {
   comment: CommentDTO;
@@ -28,11 +31,13 @@ type CommentItemProps = {
   onChanged: (comment: CommentDTO) => void;
   onReply?: (comment: CommentDTO) => void;
   highlighted?: boolean;
+  /** The reply box, when this comment is the one being answered. */
+  replyBox?: ReactNode;
   /** Replies, rendered under the body. */
   children?: ReactNode;
 };
 
-export function CommentItem({ comment, slug, onChanged, onReply, highlighted = false, children }: CommentItemProps) {
+export function CommentItem({ comment, slug, onChanged, onReply, highlighted = false, replyBox, children }: CommentItemProps) {
   const toast = useToast();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(comment.bodyMd ?? "");
@@ -94,19 +99,23 @@ export function CommentItem({ comment, slug, onChanged, onReply, highlighted = f
     <article
       id={anchor}
       aria-label={name}
+      style={{ "--avatar-size": `${AVATAR_SIZES[AVATAR_SIZE]}px` } as CSSProperties}
       className={cn(
-        "scroll-mt-24 rounded-lg",
+        "comment-item scroll-mt-24 rounded-lg",
         highlighted && "motion-safe:animate-[comment-highlight_3s_ease-out]",
         comment.status === "hidden" && "opacity-60",
         busy && "opacity-60",
       )}
     >
-      <div className="flex gap-3">
-        {comment.author ? (
-          <Avatar name={comment.author.displayName} src={comment.author.avatarUrl} size="md" className="shrink-0" />
-        ) : (
-          <span aria-hidden className="size-8 shrink-0 rounded-full border border-dashed border-border" />
-        )}
+      <div className="comment-row">
+        <div className="comment-rail">
+          {comment.author ? (
+            <Avatar name={comment.author.displayName} src={comment.author.avatarUrl} size={AVATAR_SIZE} className="shrink-0" />
+          ) : (
+            <span aria-hidden className="comment-avatar-placeholder" />
+          )}
+          <span aria-hidden className="comment-spine" />
+        </div>
         <div className="min-w-0 flex-1">
           {comment.isDeleted ? (
             <p className="py-1.5 text-sm italic text-faint">{COMMENT_COPY.deleted}</p>
@@ -117,12 +126,6 @@ export function CommentItem({ comment, slug, onChanged, onReply, highlighted = f
                 {comment.author?.isPostAuthor && (
                   <Badge className={COMMENT_STATUS_TONES.author}>{COMMENT_COPY.authorBadge.toUpperCase()}</Badge>
                 )}
-                <a href={`#${anchor}`} className="text-xs text-faint transition hover:text-muted">
-                  <time dateTime={comment.createdAt} title={formatDateTime(comment.createdAt)}>
-                    {formatRelativeTime(comment.createdAt)}
-                  </time>
-                </a>
-                {comment.editedAt && <span className="text-xs text-faint">· {COMMENT_COPY.edited}</span>}
                 {comment.isPinned && (
                   <span className="inline-flex items-center gap-1 text-xs font-medium text-accent">
                     <Pin aria-hidden className="size-3" />
@@ -162,29 +165,38 @@ export function CommentItem({ comment, slug, onChanged, onReply, highlighted = f
               )}
 
               {!editing && (
-                <div className="mt-2 flex flex-wrap items-center gap-2">
+                <div className="mt-1">
                   <CommentReactions
                     commentId={comment.id}
                     initial={{ counts: comment.reactions, mine: comment.myReactions }}
                     returnPath={`${ROUTES.post(slug)}#${anchor}`}
                     disabled={comment.status !== "visible"}
-                  />
-                  {onReply && comment.status === "visible" && (
-                    <button
-                      type="button"
-                      onClick={() => onReply(comment)}
-                      className="min-h-9 rounded-md px-2 text-xs font-semibold text-muted transition hover:bg-surface-hover hover:text-text"
-                    >
-                      {COMMENT_COPY.reply}
-                    </button>
-                  )}
+                  >
+                    {onReply && comment.status === "visible" && (
+                      <button
+                        type="button"
+                        onClick={() => onReply(comment)}
+                        className="min-h-9 rounded-md px-2 text-xs font-semibold text-muted transition hover:bg-surface-hover hover:text-text"
+                      >
+                        {COMMENT_COPY.reply}
+                      </button>
+                    )}
+                    <a href={`#${anchor}`} className="px-1 text-xs font-medium text-faint transition hover:text-muted">
+                      <time dateTime={comment.createdAt} title={formatDateTime(comment.createdAt)}>
+                        {formatRelativeTime(comment.createdAt)}
+                      </time>
+                    </a>
+                  </CommentReactions>
                 </div>
               )}
             </>
           )}
-          {children}
         </div>
       </div>
+      <CommentBranch>
+        {replyBox && <CommentNode>{replyBox}</CommentNode>}
+        {children}
+      </CommentBranch>
       {comment.canReport && <ReportDialog commentId={comment.id} open={reporting} onClose={() => setReporting(false)} />}
     </article>
   );

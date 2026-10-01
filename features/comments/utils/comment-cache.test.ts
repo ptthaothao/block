@@ -6,6 +6,7 @@ import { flattenThreads, insertComment, replaceComment } from "./comment-cache";
 const comment = (id: string, parentId: string | null = null): CommentDTO => ({
   id,
   parentId,
+  rootId: parentId,
   bodyHtml: `<p>${id}</p>`,
   bodyMd: null,
   createdAt: "2026-09-28T00:00:00Z",

@@ -106,7 +106,7 @@ export async function previewComment(body: string): Promise<Result<string>> {
 }
 
 // ---------------------------------------------------------------------------
-// Moderation (/dashboard/moderation, editors)
+// Moderation (/cms/moderation, editors)
 // ---------------------------------------------------------------------------
 
 async function resolveReports(commentId: string, editorId: string) {

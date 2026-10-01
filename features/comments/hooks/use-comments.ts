@@ -38,8 +38,8 @@ export function useComments(slug: string, sort: CommentSort, enabled: boolean) {
   const changed = useCallback(
     (comment: CommentDTO) => {
       update((data) => replaceComment(data, comment));
-      if (comment.parentId) {
-        queryClient.setQueryData<{ replies: CommentDTO[] }>(COMMENT_QUERY_KEYS.replies(comment.parentId), (data) =>
+      if (comment.rootId) {
+        queryClient.setQueryData<{ replies: CommentDTO[] }>(COMMENT_QUERY_KEYS.replies(comment.rootId), (data) =>
           data ? { replies: data.replies.map((r) => (r.id === comment.id ? comment : r)) } : data,
         );
       }

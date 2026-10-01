@@ -63,6 +63,7 @@ export type Database = {
           post_id: string;
           reaction_counts: NonNullable<Json>;
           reply_count: number;
+          root_id: string | null;
           status: Database["public"]["Enums"]["comment_status"];
         };
         Insert: {
@@ -77,6 +78,7 @@ export type Database = {
           post_id: string;
           reaction_counts?: NonNullable<Json>;
           reply_count?: number;
+          root_id?: string | null;
           status?: Database["public"]["Enums"]["comment_status"];
         };
         Update: {
@@ -91,6 +93,7 @@ export type Database = {
           post_id?: string;
           reaction_counts?: NonNullable<Json>;
           reply_count?: number;
+          root_id?: string | null;
           status?: Database["public"]["Enums"]["comment_status"];
         };
         Relationships: [
@@ -121,6 +124,20 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "posts";
             referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comments_root_id_fkey";
+            columns: ["root_id"];
+            isOneToOne: false;
+            referencedRelation: "comments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comments_root_id_fkey";
+            columns: ["root_id"];
+            isOneToOne: false;
+            referencedRelation: "moderation_queue";
+            referencedColumns: ["comment_id"];
           },
         ];
       };

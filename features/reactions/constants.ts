@@ -4,11 +4,11 @@ import type { ReactionKind } from "./types";
 
 /** The fixed emoji set, in display order. Must match the reaction_kind enum in the database. */
 export const REACTIONS = [
-  { kind: "helpful", emoji: "👍", label: "Hữu ích" },
-  { kind: "love", emoji: "❤️", label: "Thích" },
-  { kind: "mindblown", emoji: "🤯", label: "Mở mang" },
-  { kind: "confused", emoji: "🤔", label: "Chưa hiểu" },
-] as const satisfies readonly { kind: ReactionKind; emoji: string; label: string }[];
+  { kind: "helpful", emoji: "👍", label: "Hữu ích", tone: "text-accent" },
+  { kind: "love", emoji: "❤️", label: "Yêu thích", tone: "text-danger" },
+  { kind: "mindblown", emoji: "🤯", label: "Mở mang", tone: "text-warning" },
+  { kind: "confused", emoji: "🤔", label: "Chưa hiểu", tone: "text-violet" },
+] as const satisfies readonly { kind: ReactionKind; emoji: string; label: string; tone: string }[];
 
 export const REACTION_KINDS = REACTIONS.map((r) => r.kind) as [ReactionKind, ...ReactionKind[]];
 
@@ -28,8 +28,14 @@ export const REACTION_LIMITS = {
 export const REACTION_TIMINGS = {
   /** The "pop" when a reaction is picked (scale 1 → 1.25 → 1). Also set in globals.css. */
   bounceMs: 150,
-  /** Hold this long on the mobile bar to open the picker. */
+  /** Hold this long on the mobile bar (or a comment's Like) to open the picker. */
   longPressMs: 450,
+  /** Hover a comment's Like this long to open the picker. */
+  pickerOpenMs: 500,
+  /** Leaving the Like button and the picker closes it after this long, so the pointer can cross the gap. */
+  pickerCloseMs: 300,
+  /** Hover the reaction cluster this long to show the per-emoji counts. */
+  breakdownDelayMs: 300,
   /** Tooltip names barely change; reuse them for a while. */
   peopleStaleMs: 5 * 60_000,
   /** Counts are refetched when the tab regains focus, and otherwise reused this long. */
@@ -45,7 +51,14 @@ export const POST_ANCHORS = { reactions: "reactions", comments: POST_COMMENTS_AN
 /** Type of the pending action replayed after signing in. */
 export const REACTION_PENDING_ACTION = "reaction";
 
+/** How many emoji the stacked cluster under a comment shows. */
+export const CLUSTER_ICON_LIMIT = 3;
+
 export const REACTION_COPY = {
+  like: "Thích",
+  likeLabel: "Thích. Giữ hoặc nhấn mũi tên lên để chọn cảm xúc khác",
+  unlikeLabel: (label: string) => `${label}, bấm để bỏ`,
+  clusterLabel: (total: number) => `${total} reaction, xem chi tiết`,
   groupLabel: "Reaction cho bài viết",
   endTitle: "Bài này thế nào với bạn?",
   endHint: "Một cú bấm giúp tác giả biết nên viết tiếp gì.",

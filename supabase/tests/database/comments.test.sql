@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
 
-select plan(24);
+select plan(26);
 
 truncate public.reports, public.comments, public.reactions, public.post_stats, public.post_tags, public.post_authors, public.posts, public.tags, public.series, public.categories cascade;
 delete from auth.users;
@@ -36,19 +36,26 @@ insert into ids select 'reply', id from create_comment('50000000-0000-0000-0000-
 insert into ids select 'reply2', id from create_comment('50000000-0000-0000-0000-000000000001', '@bob trả lời tiếp', (select id from ids where name = 'reply'));
 select is(
   (select parent_id from comments where id = (select id from ids where name = 'reply2')),
-  (select id from ids where name = 'root'),
-  'replying to a reply joins the same thread'
+  (select id from ids where name = 'reply'),
+  'a reply is stored under the comment it answers'
 );
-select throws_ok(
-  $$ insert into comments (post_id, parent_id, body_md) values ('50000000-0000-0000-0000-000000000001', (select id from ids where name = 'reply'), 'deep') $$,
-  '23514', null, 'replies cannot nest two levels'
+select is(
+  (select root_id from comments where id = (select id from ids where name = 'reply2')),
+  (select id from ids where name = 'root'),
+  'and still belongs to the same thread'
+);
+insert into ids select 'reply3', id from create_comment('50000000-0000-0000-0000-000000000001', 'sâu hơn nữa', (select id from ids where name = 'reply2'));
+select is(
+  (select root_id from comments where id = (select id from ids where name = 'reply3')),
+  (select id from ids where name = 'root'),
+  'replies nest to any depth'
 );
 select throws_ok(
   $$ select create_comment('50000000-0000-0000-0000-000000000002', 'hi', null) $$,
   'P0002', null, 'drafts take no comments'
 );
-select is((select reply_count from comments where id = (select id from ids where name = 'root')), 2, 'the thread counts its replies');
-select is((select comment_count from post_stats where post_id = '50000000-0000-0000-0000-000000000001'), 3, 'the post counts its comments');
+select is((select reply_count from comments where id = (select id from ids where name = 'root')), 3, 'the thread counts its replies');
+select is((select comment_count from post_stats where post_id = '50000000-0000-0000-0000-000000000001'), 4, 'the post counts its comments');
 
 -- Editing within the window marks the comment edited.
 update comments set body_md = 'Câu hỏi (đã sửa)' where id = (select id from ids where name = 'root');
@@ -84,7 +91,7 @@ select lives_ok(
   $$ update comments set status = 'hidden' where id = (select id from ids where name = 'reply2') $$,
   'the post author can hide a comment'
 );
-select is((select reply_count from comments where id = (select id from ids where name = 'root')), 1, 'hidden replies leave the count');
+select is((select reply_count from comments where id = (select id from ids where name = 'root')), 2, 'hidden replies leave the count');
 select throws_ok(
   $$ update comments set status = 'visible' where id = (select id from ids where name = 'spam') $$,
   '42501', null, 'post authors cannot approve pending comments'

@@ -1,9 +1,14 @@
 import type { CommentSort, ReportReason } from "./types";
 
+/** Direct replies shown under a comment before "Xem thêm n bình luận". Applies at every depth. */
+export const INITIAL_VISIBLE_REPLIES = 1;
+/** How many more direct replies one click on "Xem thêm" reveals. */
+export const REPLIES_BATCH_SIZE = 10;
+
 export const COMMENT_LIMITS = {
   /** Top-level threads per page. */
   pageSize: 20,
-  /** Replies shown under a thread before "Xem thêm n trả lời". */
+  /** Replies that travel with a page of threads; the rest of a thread is fetched on demand. */
   repliesPreview: 3,
   bodyMax: 5000,
   /** Show the character counter from this length on. */
@@ -15,8 +20,6 @@ export const COMMENT_LIMITS = {
 export const COMMENT_EDIT_WINDOW_MS = 15 * 60_000;
 
 export const COMMENT_TIMINGS = {
-  /** Preview renders after typing pauses this long. */
-  previewDebounceMs: 400,
   /** Drafts are saved after typing pauses this long. */
   draftDebounceMs: 500,
   /** A linked comment (#comment-<id>) stays highlighted this long. */
@@ -28,11 +31,11 @@ export const COMMENT_TIMINGS = {
 export const COMMENTS_LAZY_ROOT_MARGIN = "600px";
 
 export const COMMENT_SORTS = [
-  { id: "best", label: "Hay nhất" },
   { id: "new", label: "Mới nhất" },
+  { id: "best", label: "Hay nhất" },
 ] as const satisfies readonly { id: CommentSort; label: string }[];
 
-export const DEFAULT_COMMENT_SORT: CommentSort = "best";
+export const DEFAULT_COMMENT_SORT: CommentSort = "new";
 
 export const COMMENT_QUERY_KEYS = {
   post: (slug: string, sort: CommentSort) => ["comments", "post", slug, sort] as const,
@@ -66,28 +69,13 @@ export const COMMENT_STATUS_TONES = {
   reported: "bg-danger/10 text-danger ring-danger/30",
 } as const;
 
-/** Markdown shortcuts in the composer toolbar: text inserted before/after the selection. */
-export const COMPOSER_TOOLS = [
-  { id: "bold", label: "Đậm", before: "**", after: "**", placeholder: "chữ đậm" },
-  { id: "italic", label: "Nghiêng", before: "_", after: "_", placeholder: "chữ nghiêng" },
-  { id: "code", label: "Code", before: "`", after: "`", placeholder: "code" },
-  { id: "codeBlock", label: "Khối code", before: "\n```\n", after: "\n```\n", placeholder: "code" },
-  { id: "link", label: "Liên kết", before: "[", after: "](https://)", placeholder: "chữ" },
-] as const;
-export type ComposerToolId = (typeof COMPOSER_TOOLS)[number]["id"];
-
 export const COMMENT_COPY = {
   title: (n: number) => `Bình luận (${n})`,
   sortLabel: "Sắp xếp bình luận",
   placeholder: "Viết bình luận…",
   replyPlaceholder: (name: string) => `Trả lời ${name}…`,
-  write: "Viết",
-  preview: "Xem trước",
-  previewEmpty: "Chưa có gì để xem trước.",
-  previewLoading: "Đang dựng bản xem trước…",
-  markdownHint: "Hỗ trợ Markdown",
-  shortcutHint: "Ctrl/⌘ + Enter để gửi",
   send: "Gửi",
+  replyHint: "Nhấn Esc để huỷ",
   save: "Lưu",
   cancel: "Huỷ",
   counter: (n: number, max: number) => `${n}/${max}`,
@@ -105,7 +93,8 @@ export const COMMENT_COPY = {
   edited: "đã sửa",
   deleted: "Bình luận đã bị xoá",
   reply: "Trả lời",
-  moreReplies: (n: number) => `Xem thêm ${n} trả lời`,
+  moreReplies: (n: number) => `Xem thêm ${n} bình luận`,
+  repliesFailed: "Không tải được các trả lời.",
   menuLabel: (name: string) => `Tuỳ chọn cho bình luận của ${name}`,
   edit: "Sửa",
   delete: "Xoá",
@@ -125,7 +114,6 @@ export const COMMENT_COPY = {
   actionFailed: "Chưa làm được, thử lại nhé.",
   tooLong: (max: number) => `Bình luận dài quá ${max} ký tự.`,
   bodyRequired: "Bình luận chưa có nội dung.",
-  toolbarLabel: "Định dạng",
   close: "Đóng",
 } as const;
 

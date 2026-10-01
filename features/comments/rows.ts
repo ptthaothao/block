@@ -10,6 +10,7 @@ export type CommentRow = {
   id: string;
   post_id: string;
   parent_id: string | null;
+  root_id: string | null;
   author_id: string;
   body_md: string;
   status: CommentStatus;

@@ -21,6 +21,7 @@ export function toCommentDTO(row: CommentRow, { bodyHtml, permissions, myReactio
   return {
     id: row.id,
     parentId: row.parent_id,
+    rootId: row.root_id,
     bodyHtml: isDeleted ? "" : bodyHtml,
     bodyMd: permissions.canEdit ? row.body_md : null,
     createdAt: row.created_at,

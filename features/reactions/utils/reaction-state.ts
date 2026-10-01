@@ -30,3 +30,10 @@ export function usedReactions(counts: ReactionCounts) {
 export function reactionMeta(kind: ReactionKind) {
   return REACTIONS.find((r) => r.kind === kind) ?? REACTIONS[0];
 }
+
+/** Emoji with at least one reader, most picked first (ties keep display order). */
+export function rankedReactions(counts: ReactionCounts) {
+  return usedReactions(counts)
+    .map((r) => ({ ...r, count: counts[r.kind] ?? 0 }))
+    .sort((a, b) => b.count - a.count);
+}

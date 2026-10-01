@@ -21,7 +21,7 @@ export function insertComment(data: Pages, comment: CommentDTO): Pages {
     ...page,
     commentCount: i === 0 ? page.commentCount + 1 : page.commentCount,
     threads: page.threads.map((thread) =>
-      thread.id === comment.parentId
+      thread.id === comment.rootId
         ? { ...thread, replyCount: thread.replyCount + 1, replies: [...thread.replies, comment] }
         : thread,
     ),

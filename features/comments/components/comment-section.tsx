@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -14,8 +14,9 @@ import { COMMENT_ANCHOR_PREFIX, COMMENT_COPY, COMMENT_SORTS, COMMENTS_LAZY_ROOT_
 import { useCommentDraft } from "../hooks/use-comment-draft";
 import { useCommentSender } from "../hooks/use-comment-sender";
 import { useCommentSort } from "../hooks/use-comment-sort";
+import { useReplyBox } from "../hooks/use-reply-box";
 import { useComments } from "../hooks/use-comments";
-import type { CommentSort } from "../types";
+import type { CommentDTO, CommentSort } from "../types";
 import { flattenThreads } from "../utils/comment-cache";
 import { parseCommentHash } from "../utils/comment-hash";
 import { CommentComposer } from "./comment-composer";
@@ -42,7 +43,21 @@ function CommentSectionBody({ slug }: { slug: string }) {
   const [sort, setSort] = useCommentSort();
   const { query, added, changed } = useComments(slug, sort, inView || target.wantsComments);
   const [draft, setDraft, clearDraft] = useCommentDraft(slug);
-  const sender = useCommentSender(slug, query.isSuccess, added, (parentId) => {
+  const replyBox = useReplyBox();
+  // Replies that must stay visible even under a collapsed comment: ones just posted, and a linked one.
+  const [revealed, setRevealed] = useState<ReadonlySet<string>>(() => new Set(target.commentId ? [target.commentId] : []));
+  const onCreated = useCallback(
+    (comment: CommentDTO) => {
+      added(comment);
+      setRevealed((ids) => new Set(ids).add(comment.id));
+      // Once the new reply is on the page, bring it into view if it is off screen.
+      requestAnimationFrame(() =>
+        document.getElementById(COMMENT_ANCHOR_PREFIX + comment.id)?.scrollIntoView({ block: "nearest", behavior: "smooth" }),
+      );
+    },
+    [added],
+  );
+  const sender = useCommentSender(slug, query.isSuccess, onCreated, (parentId) => {
     if (parentId === null) clearDraft();
   });
 
@@ -56,6 +71,7 @@ function CommentSectionBody({ slug }: { slug: string }) {
   const threads = query.data ? flattenThreads(query.data) : [];
   const count = query.data?.pages[0]?.commentCount;
   const topLocals = sender.locals.filter((l) => l.parentId === null);
+  const replyLocals = sender.locals.filter((l) => l.parentId !== null);
 
   return (
     <section ref={ref} id={POST_COMMENTS_ANCHOR} aria-labelledby={SECTION_TITLE_ID} className="mt-14 scroll-mt-24">
@@ -78,7 +94,6 @@ function CommentSectionBody({ slug }: { slug: string }) {
       <CommentComposer
         value={draft}
         onChange={setDraft}
-        collapsible
         onSubmit={(body) => {
           const taken = sender.send(body, null);
           if (taken) clearDraft();
@@ -113,8 +128,13 @@ function CommentSectionBody({ slug }: { slug: string }) {
               thread={thread}
               slug={slug}
               highlightId={target.commentId}
-              locals={sender.locals.filter((l) => l.parentId === thread.id)}
+              locals={replyLocals}
               onChanged={changed}
+              revealed={revealed}
+              reply={replyBox.reply?.threadId === thread.id ? replyBox.reply : null}
+              onReplyOpen={replyBox.open}
+              onReplyText={replyBox.setText}
+              onReplyClose={replyBox.close}
               onSend={sender.send}
               onRetry={sender.retry}
               onDiscard={sender.discard}

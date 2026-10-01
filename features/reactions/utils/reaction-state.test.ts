@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { applyToggle, reactionMeta, totalReactions, usedReactions } from "./reaction-state";
+import { applyToggle, reactionMeta, rankedReactions, totalReactions, usedReactions } from "./reaction-state";
 
 describe("reaction state", () => {
   it("adds and removes the reader's pick", () => {
@@ -19,5 +19,10 @@ describe("reaction state", () => {
     expect(totalReactions(counts)).toBe(4);
     expect(usedReactions(counts).map((r) => r.kind)).toEqual(["helpful", "confused"]);
     expect(reactionMeta("love").emoji).toBe("❤️");
+  });
+
+  it("ranks emoji by count, most first", () => {
+    const ranked = rankedReactions({ confused: 1, helpful: 3, love: 1 });
+    expect(ranked.map((r) => [r.kind, r.count])).toEqual([["helpful", 3], ["love", 1], ["confused", 1]]);
   });
 });

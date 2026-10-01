@@ -15,7 +15,10 @@ export type CommentAuthor = {
 /** A comment as the browser sees it. Permissions are decided on the server. */
 export type CommentDTO = {
   id: string;
+  /** The comment this one answers; null for a top-level comment. */
   parentId: string | null;
+  /** The top-level comment of its thread; null for a top-level comment. */
+  rootId: string | null;
   bodyHtml: string;
   /** The Markdown, only for the writer while they may still edit it. */
   bodyMd: string | null;
@@ -58,7 +61,7 @@ export type CommentEdit = { id: string; body: string };
 
 export type CommentReport = { id: string; reason: ReportReason; note?: string };
 
-/** An item in the moderation queue (/dashboard/moderation). */
+/** An item in the moderation queue (/cms/moderation). */
 export type ModerationItem = {
   commentId: string;
   status: CommentStatus;
