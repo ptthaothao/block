@@ -17,7 +17,7 @@ export const INTEREST_LIMITS = {
   /** Onboarding asks for at least this many picks. */
   onboardingMin: 3,
   /** Posts per feed page on the home page. */
-  feedPage: 6,
+  feedPage: 10,
   /** Popular tags offered in onboarding. */
   onboardingTags: 16,
 } as const;

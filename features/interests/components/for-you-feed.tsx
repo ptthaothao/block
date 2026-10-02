@@ -55,7 +55,7 @@ export function ForYouFeed({ interests, signedIn }: ForYouFeedProps) {
 
   return (
     <div className="space-y-8">
-      <CardGrid>
+      <CardGrid columns="posts">
         {items.map((item) => (
           <FeedPostCard key={item.post.slug} item={item} />
         ))}

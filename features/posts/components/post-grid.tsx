@@ -16,7 +16,7 @@ type PostGridProps = {
 export function PostGrid({ posts, emptyTitle = "Chưa có bài viết nào", emptyHint, columns = "default" }: PostGridProps) {
   if (posts.length === 0) return <EmptyState title={emptyTitle}>{emptyHint}</EmptyState>;
   return (
-    <CardGrid columns={columns === "withSidebar" ? "withSidebar" : 3}>
+    <CardGrid columns={columns === "withSidebar" ? "withSidebar" : "posts"}>
       {posts.map((post) => (
         <PostCard key={post.slug} post={post} />
       ))}

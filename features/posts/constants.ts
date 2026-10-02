@@ -20,11 +20,10 @@ export const POST_CACHE_KEYS = {
 export const POST_REVALIDATE_SECONDS = 60 * 60;
 
 export const POST_LIMITS = {
-  home: 6,
+  home: 10,
   list: 30,
   /** Slugs pre-rendered at build; the rest render on first request. */
   staticParams: 200,
-  tagsOnCard: 3,
   /** Tag filters accepted from one URL; more are ignored. */
   filterTags: 10,
 } as const;
@@ -66,7 +65,7 @@ export const FILTER_COPY = {
 } as const;
 
 /** Placeholder cards shown while a list loads. */
-export const POST_SKELETON_COUNT = 6;
+export const POST_SKELETON_COUNT = 10;
 
 /** Between a parent and child category, e.g. "Frontend › React". */
 export const CATEGORY_TRAIL_SEPARATOR = " › ";
