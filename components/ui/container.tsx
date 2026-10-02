@@ -3,7 +3,7 @@ import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils/cn";
 
 const WIDTHS = {
-  page: "max-w-7xl",
+  page: "max-w-[100rem]",
   narrow: "max-w-md",
   prose: "max-w-3xl",
 } as const;

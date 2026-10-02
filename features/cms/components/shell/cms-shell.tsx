@@ -42,7 +42,7 @@ export function CmsShell({ user, children }: { user: PublicSessionUser; children
       <div className="flex min-w-0 flex-1 flex-col">
         <CmsTopbar section={activeLink?.label ?? null} onOpenMenu={() => setMenuOpen(true)} />
         <main id={MAIN_CONTENT_ID} className={cn("flex-1", !fullBleed && "px-4 py-8 sm:px-6 lg:px-8")}>
-          {fullBleed ? children : <div className="mx-auto max-w-6xl">{children}</div>}
+          {fullBleed ? children : <div className="mx-auto max-w-[100rem]">{children}</div>}
         </main>
       </div>
     </div>
