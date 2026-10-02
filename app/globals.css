@@ -212,6 +212,18 @@
   }
 }
 
+/* Side drawer (components/ui/drawer) sliding in from the right. */
+@keyframes drawer-in {
+  from {
+    transform: translateX(2rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 /* Reaction "pop": scale 1 → 1.25 → 1 (REACTION_TIMINGS.bounceMs). */
 @keyframes reaction-pop {
   50% {

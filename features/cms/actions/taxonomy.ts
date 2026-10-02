@@ -7,10 +7,12 @@ import { CMS_ERROR_MESSAGES } from "../constants";
 import {
   categoryInputSchema,
   entityIdSchema,
-  mergeTagsSchema,
+  entityIdsSchema,
+  mergeTagsIntoSchema,
   seriesInputSchema,
   tagInputSchema,
   type CategoryInput,
+  type MergeTagsIntoInput,
   type SeriesInput,
   type TagInput,
 } from "../schemas";
@@ -53,6 +55,17 @@ export async function deleteCategory(id: number): Promise<Result> {
   return done(error);
 }
 
+/** Sets `position` to each id's index; the ids are one set of siblings in their new order. */
+export async function reorderCategories(ids: number[]): Promise<Result> {
+  if (!(await requireEditor())) return fail(CMS_ERROR_MESSAGES.forbidden);
+  if (!entityIdsSchema.safeParse(ids).success) return fail(CMS_ERROR_MESSAGES.invalid);
+  const supabase = await createClient();
+  const results = await Promise.all(
+    ids.map((id, position) => supabase.from("categories").update({ position }).eq("id", id)),
+  );
+  return done(results.find((r) => r.error)?.error ?? null);
+}
+
 export async function saveTag(input: TagInput): Promise<Result> {
   const user = await authorize("editor");
   if (!user) return fail(CMS_ERROR_MESSAGES.forbidden);
@@ -67,21 +80,33 @@ export async function saveTag(input: TagInput): Promise<Result> {
   return done(error);
 }
 
-export async function deleteTag(id: number): Promise<Result> {
+export async function approveTags(ids: number[]): Promise<Result> {
   if (!(await requireEditor())) return fail(CMS_ERROR_MESSAGES.forbidden);
-  if (!entityIdSchema.safeParse(id).success) return fail(CMS_ERROR_MESSAGES.invalid);
+  if (!entityIdsSchema.safeParse(ids).success) return fail(CMS_ERROR_MESSAGES.invalid);
   const supabase = await createClient();
-  const { error } = await supabase.from("tags").delete().eq("id", id);
+  const { error } = await supabase.from("tags").update({ status: "approved" }).in("id", ids);
   return done(error);
 }
 
-export async function mergeTags(sourceId: number, targetId: number): Promise<Result> {
+export async function deleteTags(ids: number[]): Promise<Result> {
   if (!(await requireEditor())) return fail(CMS_ERROR_MESSAGES.forbidden);
-  const parsed = mergeTagsSchema.safeParse({ sourceId, targetId });
-  if (!parsed.success || sourceId === targetId) return fail(CMS_ERROR_MESSAGES.invalid);
+  if (!entityIdsSchema.safeParse(ids).success) return fail(CMS_ERROR_MESSAGES.invalid);
   const supabase = await createClient();
-  const { error } = await supabase.rpc("merge_tags", { p_source: sourceId, p_target: targetId });
+  const { error } = await supabase.from("tags").delete().in("id", ids);
   return done(error);
+}
+
+/** Merges each source into the target one at a time, stopping at the first failure. */
+export async function mergeTagsInto(input: MergeTagsIntoInput): Promise<Result> {
+  if (!(await requireEditor())) return fail(CMS_ERROR_MESSAGES.forbidden);
+  const parsed = mergeTagsIntoSchema.safeParse(input);
+  if (!parsed.success) return fail(CMS_ERROR_MESSAGES.invalid);
+  const supabase = await createClient();
+  for (const sourceId of parsed.data.sourceIds) {
+    const { error } = await supabase.rpc("merge_tags", { p_source: sourceId, p_target: parsed.data.targetId });
+    if (error) return done(error);
+  }
+  return done(null);
 }
 
 export async function saveSeries(input: SeriesInput): Promise<Result> {

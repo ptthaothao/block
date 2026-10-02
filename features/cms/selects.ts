@@ -16,8 +16,8 @@ export const CMS_POST_SELECT = `
 
 export const CMS_SAVED_POST_SELECT = "id, slug, status, updated_at" as const;
 
-export const CMS_CATEGORY_SELECT = "id, parent_id, name, slug, description, icon, color, position" as const;
+export const CMS_CATEGORY_SELECT = "id, parent_id, name, slug, description, icon, color, position, posts ( count )" as const;
 
 export const CMS_TAG_SELECT = "id, name, slug, status, post_tags ( count )" as const;
 
-export const CMS_SERIES_SELECT = "id, title, slug, description, cover_url" as const;
+export const CMS_SERIES_SELECT = "id, title, slug, description, cover_url, posts ( count )" as const;

@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { CMS_LIMITS } from "./constants";
 import { toCmsCategory, toCmsPost, toCmsPostListItem, toCmsSeries, toCmsTag } from "./mappers";
-import type { CmsPostListRow, CmsPostRow, CmsTagRow } from "./rows";
+import type { CmsCategoryRow, CmsPostListRow, CmsPostRow, CmsSeriesRow, CmsTagRow } from "./rows";
 import {
   CMS_CATEGORY_SELECT,
   CMS_MY_POST_LIST_SELECT,
@@ -66,9 +66,13 @@ export async function getCmsPost(user: SessionUser, id: string): Promise<CmsPost
 export async function getCmsTaxonomy(): Promise<CmsTaxonomy> {
   const supabase = await createClient();
   const [categories, tags, series] = await Promise.all([
-    supabase.from("categories").select(CMS_CATEGORY_SELECT).order("position"),
+    supabase
+      .from("categories")
+      .select(CMS_CATEGORY_SELECT)
+      .order("position")
+      .overrideTypes<CmsCategoryRow[], { merge: false }>(),
     supabase.from("tags").select(CMS_TAG_SELECT).order("name").overrideTypes<CmsTagRow[], { merge: false }>(),
-    supabase.from("series").select(CMS_SERIES_SELECT).order("title"),
+    supabase.from("series").select(CMS_SERIES_SELECT).order("title").overrideTypes<CmsSeriesRow[], { merge: false }>(),
   ]);
   const error = categories.error ?? tags.error ?? series.error;
   if (error) throw new Error(`getCmsTaxonomy: ${error.message}`);

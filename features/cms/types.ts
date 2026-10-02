@@ -51,6 +51,8 @@ export type CmsCategory = {
   icon: string | null;
   color: string | null;
   position: number;
+  /** Posts filed directly under this category (not its children). */
+  postCount: number;
 };
 
 export type CmsTag = {
@@ -67,12 +69,26 @@ export type CmsSeries = {
   slug: string;
   description: string | null;
   coverUrl: string | null;
+  postCount: number;
 };
 
 export type CmsTaxonomy = {
   categories: CmsCategory[];
   tags: CmsTag[];
   series: CmsSeries[];
+};
+
+/** Tag table filter: one status, or every tag. */
+export type TagStatusFilter = TagStatus | "all";
+
+export type TagSort = "posts" | "name";
+
+/** A top-level category with its children, both in position order. */
+export type CategoryTreeNode = {
+  category: CmsCategory;
+  children: CmsCategory[];
+  /** Its own posts plus its children's. */
+  totalPosts: number;
 };
 
 /** Editor form state: like PostInput, but tags are typed as one string. */

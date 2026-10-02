@@ -1,7 +1,17 @@
+import { ROUTES } from "@/config/routes";
 import { COMMON_ERROR_MESSAGES } from "@/lib/actions/constants";
 
 import type { CategoryInput, SeriesInput } from "./schemas";
-import type { MarkdownFormat, PostFormValues, PostLevel, PostStatus, SaveState, TagStatus } from "./types";
+import type {
+  MarkdownFormat,
+  PostFormValues,
+  PostLevel,
+  PostStatus,
+  SaveState,
+  TagSort,
+  TagStatus,
+  TagStatusFilter,
+} from "./types";
 
 export const CMS_LIMITS = {
   postList: 100,
@@ -18,6 +28,10 @@ export const CMS_LIMITS = {
   tagNameMax: 40,
   seriesTitleMax: 120,
   reviewNoteMax: 1000,
+  /** Tags per page in the taxonomy tag table. */
+  tagPageSize: 10,
+  /** Most rows one bulk action (approve, delete, merge, reorder) may touch. */
+  bulkMax: 200,
 } as const;
 
 export const CMS_TIMINGS = {
@@ -58,9 +72,9 @@ export const POST_LEVEL_OPTIONS: { value: PostLevel; label: string }[] = [
   { value: "advanced", label: "Nâng cao" },
 ];
 
-export const TAG_STATUS_META: Record<TagStatus, { label: string; className: string }> = {
-  pending: { label: "Chờ duyệt", className: "text-warning bg-warning/10 ring-warning/25" },
-  approved: { label: "Đã duyệt", className: "text-emerald bg-emerald/10 ring-emerald/25" },
+export const TAG_STATUS_META: Record<TagStatus, { label: string; className: string; dotClassName: string }> = {
+  pending: { label: "Chờ duyệt", className: "text-warning bg-warning/10 ring-warning/25", dotClassName: "bg-warning" },
+  approved: { label: "Đã duyệt", className: "text-emerald bg-emerald/10 ring-emerald/25", dotClassName: "bg-emerald" },
 };
 
 export const CMS_ERROR_MESSAGES = {
@@ -131,8 +145,141 @@ export const CONFIRM_MESSAGES = {
   deleteCategory: "Xoá danh mục này? Danh mục còn bài viết hoặc danh mục con sẽ không xoá được.",
   deleteTag: "Xoá tag này khỏi mọi bài viết?",
   deleteSeries: "Xoá series này? Các bài trong series vẫn được giữ lại.",
-  mergeTag: "Gộp tag này vào tag đã chọn? Tag hiện tại sẽ bị xoá.",
+  deleteTags: (count: number) => `Xoá ${count} tag đã chọn khỏi mọi bài viết?`,
 } as const;
+
+/** Copy for /cms/taxonomy. */
+export const TAXONOMY_COPY = {
+  title: "Phân loại",
+  description: "Danh mục 2 cấp, tag và series dùng cho bài viết.",
+  tabsLabel: "Loại phân loại",
+  cacheSynced: "Đồng bộ bộ nhớ đệm",
+  autoSlug: "Tự tạo từ tên",
+  save: "Lưu thay đổi",
+  cancel: "Huỷ",
+  delete: "Xoá",
+  close: "Đóng",
+  categories: {
+    search: "Tìm danh mục…",
+    add: "Thêm danh mục",
+    addChild: (name: string) => `Thêm danh mục con cho ${name}`,
+    collapseAll: "Thu gọn tất cả",
+    expandAll: "Mở rộng tất cả",
+    childCount: (n: number) => `${n} mục con`,
+    hint: "Kéo để sắp xếp thứ tự (hoặc dùng phím ↑ ↓ trên tay nắm). Chỉ danh mục cấp 1 mới có mục con.",
+    empty: "Chưa có danh mục nào",
+    noMatch: "Không có danh mục khớp",
+    editTitle: "Sửa danh mục",
+    newTitle: "Thêm danh mục",
+    preview: "Xem trước giao diện public:",
+    pickHint: "Chọn một danh mục bên trái để sửa, hoặc bấm “Thêm danh mục”.",
+    noParent: "Không (cấp 1)",
+    reorder: (name: string) => `Kéo để đổi thứ tự ${name}`,
+    expand: (name: string) => `Mở/thu ${name}`,
+    positionDown: "Giảm thứ tự",
+    positionUp: "Tăng thứ tự",
+    defaultIcon: "mặc định",
+    hasChildren: "Danh mục đang có mục con nên phải ở cấp 1.",
+  },
+  tags: {
+    search: "Tìm tag…",
+    newPlaceholder: "Tên tag mới…",
+    add: "Thêm",
+    sort: "Sắp xếp",
+    approve: "Duyệt",
+    rename: "Đổi tên",
+    merge: "Gộp vào tag khác…",
+    remove: "Xoá tag",
+    actions: (name: string) => `Tuỳ chọn cho #${name}`,
+    select: (name: string) => `Chọn #${name}`,
+    selectPage: "Chọn tất cả tag trên trang",
+    selected: (n: number) => `Đã chọn ${n} tag`,
+    approveAll: "Duyệt tất cả",
+    mergeInto: "Gộp vào…",
+    clearSelection: "Bỏ chọn",
+    showing: (from: number, to: number, total: number) => `Hiển thị ${from}-${to} trong ${total} tag`,
+    prev: "Trước",
+    next: "Sau",
+    pagination: "Phân trang tag",
+    empty: "Không có tag nào khớp",
+    renameTitle: "Đổi tên tag",
+    mergeTitle: "Gộp tag",
+    mergeTarget: "Gộp vào tag",
+    mergeSources: (names: string) => `Gộp ${names} vào:`,
+    pickTarget: "Chọn tag đích",
+    mergeConfirm: "Gộp",
+    nameLabel: "Tên",
+    slugLabel: "Slug",
+  },
+  series: {
+    search: "Tìm series theo tên, slug hoặc tóm tắt…",
+    add: "Thêm series",
+    editTitle: "Sửa series",
+    newTitle: "Thêm series",
+    editing: "Đang chỉnh sửa",
+    postCount: (n: number) => `${n} bài viết`,
+    title: "Tên series",
+    slug: "Đường dẫn tĩnh (Slug)",
+    description: "Mô tả tóm tắt",
+    cover: "Ảnh bìa series (16:9)",
+    remove: "Xoá series",
+    edit: (title: string) => `Sửa series ${title}`,
+    removeOne: (title: string) => `Xoá series ${title}`,
+    empty: "Chưa có series nào",
+    noMatch: "Không có series khớp",
+  },
+} as const;
+
+/** Column headers of the taxonomy tables. */
+export const TAXONOMY_COLUMNS = {
+  categories: { name: "Tên", slug: "Slug", posts: "Số bài", actions: "Thao tác" },
+  tags: { tag: "Tag", status: "Trạng thái", posts: "Số bài viết", actions: "Thao tác" },
+} as const;
+
+/** Category form field labels. */
+export const CATEGORY_FIELD_LABELS = {
+  name: "Tên",
+  slug: "Slug",
+  parent: "Danh mục cha",
+  description: "Mô tả",
+  color: "Màu sắc đại diện",
+  icon: "Biểu tượng",
+  position: "Thứ tự",
+} as const;
+
+/** Swatches offered for a category's colour; any #RRGGBB can still be typed. */
+export const CATEGORY_COLOR_SWATCHES = [
+  "#38bdf8",
+  "#818cf8",
+  "#c084fc",
+  "#34d399",
+  "#f59e0b",
+  "#ef4444",
+  "#ec4899",
+  "#06b6d4",
+  "#22c55e",
+  "#64748b",
+] as const;
+
+/** Shown before the slug input: where the item lives on the public site. */
+export const TAXONOMY_SLUG_PREFIXES = {
+  category: `${ROUTES.topics}/`,
+  series: "/series/",
+} as const;
+
+export const TAG_STATUS_FILTERS: { id: TagStatusFilter; label: string; dotClassName?: string }[] = [
+  { id: "all", label: "Tất cả" },
+  { id: "pending", label: TAG_STATUS_META.pending.label, dotClassName: TAG_STATUS_META.pending.dotClassName },
+  { id: "approved", label: TAG_STATUS_META.approved.label, dotClassName: TAG_STATUS_META.approved.dotClassName },
+];
+
+export const TAG_SORT_OPTIONS: { id: TagSort; label: string }[] = [
+  { id: "posts", label: "Số bài" },
+  { id: "name", label: "Tên" },
+];
+
+/** Where series cover images are uploaded in Supabase Storage. */
+export const SERIES_COVER_STORAGE = { bucket: "post", path: "series" } as const;
 
 /** Copy for the CMS shell (sidebar, topbar, mobile drawer). */
 export const CMS_SHELL_COPY = {

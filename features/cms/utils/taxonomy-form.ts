@@ -23,12 +23,3 @@ export function toSeriesForm(series: CmsSeries): SeriesInput {
     coverUrl: series.coverUrl ?? "",
   };
 }
-
-/** Parents first, each followed by its children. */
-export function sortCategoryTree(categories: CmsCategory[]) {
-  const parents = categories.filter((c) => c.parentId === null);
-  return parents.flatMap((parent) => [
-    { category: parent, depth: 0 as const },
-    ...categories.filter((c) => c.parentId === parent.id).map((child) => ({ category: child, depth: 1 as const })),
-  ]);
-}

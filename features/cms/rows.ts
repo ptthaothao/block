@@ -38,10 +38,14 @@ export type CmsSavedPostRow = Pick<PostRow, "id" | "slug" | "status" | "updated_
 export type CmsCategoryRow = Pick<
   Tables<"categories">,
   "id" | "parent_id" | "name" | "slug" | "description" | "icon" | "color" | "position"
->;
+> & {
+  posts: { count: number }[];
+};
 
 export type CmsTagRow = Pick<Tables<"tags">, "id" | "name" | "slug" | "status"> & {
   post_tags: { count: number }[];
 };
 
-export type CmsSeriesRow = Pick<Tables<"series">, "id" | "title" | "slug" | "description" | "cover_url">;
+export type CmsSeriesRow = Pick<Tables<"series">, "id" | "title" | "slug" | "description" | "cover_url"> & {
+  posts: { count: number }[];
+};

@@ -86,8 +86,6 @@ export const tagInputSchema = z.object({
 });
 export type TagInput = z.input<typeof tagInputSchema>;
 
-export const mergeTagsSchema = z.object({ sourceId: id, targetId: id });
-
 export const seriesInputSchema = z.object({
   id: id.nullable(),
   title: z.string().trim().min(1, "Cần có tên").max(CMS_LIMITS.seriesTitleMax),
@@ -98,3 +96,15 @@ export const seriesInputSchema = z.object({
 export type SeriesInput = z.input<typeof seriesInputSchema>;
 
 export const entityIdSchema = id;
+
+/** Ids for a bulk action, without duplicates. */
+export const entityIdsSchema = z
+  .array(id)
+  .min(1)
+  .max(CMS_LIMITS.bulkMax)
+  .refine((ids) => new Set(ids).size === ids.length);
+
+export const mergeTagsIntoSchema = z
+  .object({ sourceIds: entityIdsSchema, targetId: id })
+  .refine(({ sourceIds, targetId }) => !sourceIds.includes(targetId));
+export type MergeTagsIntoInput = z.input<typeof mergeTagsIntoSchema>;

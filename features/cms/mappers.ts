@@ -88,6 +88,7 @@ export function toCmsCategory(row: CmsCategoryRow): CmsCategory {
     icon: row.icon,
     color: row.color,
     position: row.position,
+    postCount: row.posts[0]?.count ?? 0,
   };
 }
 
@@ -102,5 +103,12 @@ export function toCmsTag(row: CmsTagRow): CmsTag {
 }
 
 export function toCmsSeries(row: CmsSeriesRow): CmsSeries {
-  return { id: row.id, title: row.title, slug: row.slug, description: row.description, coverUrl: row.cover_url };
+  return {
+    id: row.id,
+    title: row.title,
+    slug: row.slug,
+    description: row.description,
+    coverUrl: row.cover_url,
+    postCount: row.posts[0]?.count ?? 0,
+  };
 }
