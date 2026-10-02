@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { PROTECTED_ROUTE_PREFIXES } from "@/config/routes";
+import { AUTH_MARKER_COOKIE } from "@/features/auth/constants";
 import { buildLoginPath } from "@/features/auth/utils/login-url";
 import { updateSession } from "@/lib/supabase/proxy";
 
@@ -12,11 +13,16 @@ export async function proxy(request: NextRequest) {
   const { response, userId } = await updateSession(request);
 
   const { pathname } = request.nextUrl;
-  if (!userId && isProtected(pathname)) {
-    return NextResponse.redirect(new URL(buildLoginPath({ next: pathname }), request.url));
-  }
+  const result =
+    !userId && isProtected(pathname)
+      ? NextResponse.redirect(new URL(buildLoginPath({ next: pathname }), request.url))
+      : response;
 
-  return response;
+  // The session ended without a sign-out (expired or revoked): drop the marker
+  // so open tabs notice and refetch /api/me once.
+  if (!userId && request.cookies.has(AUTH_MARKER_COOKIE)) result.cookies.delete(AUTH_MARKER_COOKIE);
+
+  return result;
 }
 
 // Only session-aware routes run the proxy, so public pages stay static (ISR).

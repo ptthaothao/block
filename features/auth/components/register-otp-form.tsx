@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { Input, Label } from "@/components/ui/input";
 
 import { verifyEmailOtp } from "../actions";
@@ -23,9 +23,9 @@ export function RegisterOtpForm({ next, sentToEmail }: { next: string; sentToEma
         autoFocus
         placeholder="123456"
       />
-      <Button type="submit" size="lg" fullWidth>
+      <SubmitButton size="lg" fullWidth>
         Xác nhận
-      </Button>
+      </SubmitButton>
     </form>
   );
 }

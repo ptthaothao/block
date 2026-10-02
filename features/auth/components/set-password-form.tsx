@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { Input, Label } from "@/components/ui/input";
 
 import { setPassword } from "../actions";
@@ -18,9 +18,9 @@ export function SetPasswordForm({ next }: { next: string }) {
         autoFocus
         placeholder={LOGIN_COPY.newPasswordPlaceholder}
       />
-      <Button type="submit" size="lg" fullWidth>
+      <SubmitButton size="lg" fullWidth>
         {LOGIN_COPY.setPasswordSubmit}
-      </Button>
+      </SubmitButton>
     </form>
   );
 }

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { QUERY_PARAMS } from "@/config/routes";
+import { markAuthChanged } from "@/features/auth/services/mark-auth-changed";
 import { callbackErrorCode } from "@/features/auth/utils/callback-error-code";
 import { buildLoginPath } from "@/features/auth/utils/login-url";
 import { postLoginDestination } from "@/features/auth/utils/post-login-destination";
@@ -15,7 +16,10 @@ export async function GET(request: NextRequest) {
   if (code) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(new URL(await postLoginDestination(next), origin));
+    if (!error) {
+      await markAuthChanged();
+      return NextResponse.redirect(new URL(await postLoginDestination(next), origin));
+    }
     return NextResponse.redirect(new URL(buildLoginPath({ error: callbackErrorCode(error.code) }), origin));
   }
 

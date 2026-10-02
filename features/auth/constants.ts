@@ -68,8 +68,15 @@ export const ROLE_LABELS = { reader: "Độc giả", author: "Tác giả", edito
 /** TanStack Query key for the signed-in user, shared by every widget that needs it. */
 export const SESSION_QUERY_KEY = ["session", "me"] as const;
 
-/** The session is refetched on tab focus; within this window a cached answer is reused. */
-export const SESSION_STALE_TIME_MS = 60_000;
+/**
+ * Readable-by-JS cookie holding a random value that changes whenever this
+ * browser signs in or out. It carries no identity: the client only compares it
+ * with the value it saw when it last fetched /api/me, and refetches when they
+ * differ, so the session is not re-requested on every navigation or focus.
+ */
+export const AUTH_MARKER_COOKIE = "auth-marker";
+
+export const AUTH_MARKER_MAX_AGE_SECONDS = 60 * 60 * 24 * 400;
 
 export const USER_NAV_COPY = {
   signIn: "Đăng nhập",

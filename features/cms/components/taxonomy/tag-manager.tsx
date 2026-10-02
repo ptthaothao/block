@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -51,27 +51,32 @@ export function TagManager({ tags }: { tags: CmsTag[] }) {
   const query = search.trim().toLowerCase();
   const visible = query ? tags.filter((t) => t.name.toLowerCase().includes(query) || t.slug.includes(query)) : tags;
 
-  const create = () =>
+  const create = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!newName.trim()) return;
     save.mutate(
       { id: null, name: newName, slug: slugify(newName), status: "approved" },
       { onSuccess: () => setNewName("") },
     );
+  };
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
-        <Input
-          id={NEW_TAG_INPUT_ID}
-          aria-label="Tên tag mới"
-          placeholder="Tên tag mới"
-          maxLength={CMS_LIMITS.tagNameMax}
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          className="max-w-xs py-2"
-        />
-        <Button size="sm" disabled={busy || !newName.trim()} onClick={create}>
-          Thêm tag
-        </Button>
+        <form onSubmit={create} className="contents">
+          <Input
+            id={NEW_TAG_INPUT_ID}
+            aria-label="Tên tag mới"
+            placeholder="Tên tag mới"
+            maxLength={CMS_LIMITS.tagNameMax}
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            className="max-w-xs py-2"
+          />
+          <Button type="submit" size="sm" disabled={busy || !newName.trim()} loading={save.isPending}>
+            Thêm tag
+          </Button>
+        </form>
         <Input
           aria-label="Tìm tag"
           placeholder="Tìm tag…"

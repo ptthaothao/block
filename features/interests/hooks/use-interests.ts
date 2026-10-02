@@ -38,15 +38,25 @@ export function useInterests(): InterestsState {
   const toast = useToast();
   const hydrated = useHydrated();
 
-  const mine = useQuery({ queryKey: INTEREST_QUERY_KEYS.mine, queryFn: interestsApi.mine, enabled: signedIn });
+  const mineKey = INTEREST_QUERY_KEYS.mineOf(user?.username ?? "");
+  // Fetched once per account and kept: this tab's own writes update the cache
+  // directly, so there is nothing newer on the server to go back for.
+  const mine = useQuery({
+    queryKey: mineKey,
+    queryFn: interestsApi.mine,
+    enabled: signedIn,
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
   const mutation = useActionMutation(
     setInterest,
-    // The feed is keyed by the interests it was built from (see HomeFeed), so it
-    // is not refetched here: a muted card stays put with its undo.
-    [INTEREST_QUERY_KEYS.mine],
+    // No refetch on success: setInterest stores exactly the optimistic change.
+    // The feed is keyed by the interests it was built from (see HomeFeed), so a
+    // muted card stays put with its undo.
+    [],
     [
       {
-        queryKey: INTEREST_QUERY_KEYS.mine,
+        queryKey: mineKey,
         apply: (previous, change) => {
           const current = previous as InterestsResponse | undefined;
           return current ? { items: applyInterestChange(current.items, change) } : current;

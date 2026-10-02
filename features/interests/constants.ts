@@ -4,7 +4,10 @@ export const INTEREST_TYPES = ["category", "tag", "author"] as const satisfies r
 
 /** TanStack Query keys. */
 export const INTEREST_QUERY_KEYS = {
+  /** Prefix of every reader's list: invalidate this after bulk writes (import, reset). */
   mine: ["interests", "mine"] as const,
+  /** One reader's list, so a different account never sees another's cached follows. */
+  mineOf: (username: string) => ["interests", "mine", username] as const,
   feed: (signature: string) => ["interests", "feed", signature] as const,
 };
 

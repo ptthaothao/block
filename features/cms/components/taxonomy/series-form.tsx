@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type FormEvent } from "react";
 
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -37,36 +37,43 @@ export function SeriesForm({ initial, onDone }: { initial: SeriesInput; onDone: 
       return next;
     });
 
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    save.mutate(form, { onSuccess: onDone });
+  };
+
   return (
-    <Card className="space-y-4 p-5">
-      <h2 className="font-display text-lg font-bold">{form.id ? "Sửa series" : "Thêm series"}</h2>
-      {save.error && <Alert tone="error">{save.error.message}</Alert>}
-      <Field id={IDS.title} label="Tên">
-        <Input id={IDS.title} maxLength={CMS_LIMITS.seriesTitleMax} value={form.title} onChange={(e) => set("title", e.target.value)} />
-      </Field>
-      <Field id={IDS.slug} label="Slug">
-        <Input id={IDS.slug} value={form.slug} onChange={(e) => set("slug", e.target.value)} className="font-mono" />
-      </Field>
-      <Field id={IDS.description} label="Mô tả">
-        <Textarea
-          id={IDS.description}
-          rows={DESCRIPTION_ROWS}
-          maxLength={CMS_LIMITS.descriptionMax}
-          value={form.description ?? ""}
-          onChange={(e) => set("description", e.target.value)}
-        />
-      </Field>
-      <Field id={IDS.cover} label="Ảnh bìa" hint="Link ảnh đã tải lên kho lưu trữ.">
-        <Input id={IDS.cover} type="url" value={form.coverUrl ?? ""} onChange={(e) => set("coverUrl", e.target.value)} />
-      </Field>
-      <div className="flex gap-2">
-        <Button disabled={save.isPending} onClick={() => save.mutate(form, { onSuccess: onDone })}>
-          Lưu
-        </Button>
-        <Button variant="outline" onClick={onDone}>
-          Huỷ
-        </Button>
-      </div>
+    <Card className="p-5">
+      <form onSubmit={submit} className="space-y-4">
+        <h2 className="font-display text-lg font-bold">{form.id ? "Sửa series" : "Thêm series"}</h2>
+        {save.error && <Alert tone="error">{save.error.message}</Alert>}
+        <Field id={IDS.title} label="Tên">
+          <Input id={IDS.title} maxLength={CMS_LIMITS.seriesTitleMax} value={form.title} onChange={(e) => set("title", e.target.value)} />
+        </Field>
+        <Field id={IDS.slug} label="Slug">
+          <Input id={IDS.slug} value={form.slug} onChange={(e) => set("slug", e.target.value)} className="font-mono" />
+        </Field>
+        <Field id={IDS.description} label="Mô tả">
+          <Textarea
+            id={IDS.description}
+            rows={DESCRIPTION_ROWS}
+            maxLength={CMS_LIMITS.descriptionMax}
+            value={form.description ?? ""}
+            onChange={(e) => set("description", e.target.value)}
+          />
+        </Field>
+        <Field id={IDS.cover} label="Ảnh bìa" hint="Link ảnh đã tải lên kho lưu trữ.">
+          <Input id={IDS.cover} type="url" value={form.coverUrl ?? ""} onChange={(e) => set("coverUrl", e.target.value)} />
+        </Field>
+        <div className="flex gap-2">
+          <Button type="submit" loading={save.isPending}>
+            Lưu
+          </Button>
+          <Button variant="outline" onClick={onDone}>
+            Huỷ
+          </Button>
+        </div>
+      </form>
     </Card>
   );
 }

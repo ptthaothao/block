@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { LOGIN_ERROR_CODES, LOGIN_FORM_FIELDS, OAUTH_PROVIDER } from "./constants";
 import { getAccountCreatedAt, getSessionUser } from "./queries";
+import { markAuthChanged } from "./services/mark-auth-changed";
 import { loginEmailSchema, loginOtpTokenSchema, passwordSchema } from "./schemas";
 import { isNewAccount } from "./utils/is-new-account";
 import { buildCallbackUrl, buildForgotPasswordPath, buildLoginPath, buildSetPasswordPath } from "./utils/login-url";
@@ -37,6 +38,7 @@ export async function signInWithPassword(formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email: email.data, password });
   if (error) redirect(buildLoginPath({ error: LOGIN_ERROR_CODES.credentials, next }));
+  await markAuthChanged();
   redirect(await postLoginDestination(next));
 }
 
@@ -64,6 +66,7 @@ export async function verifyEmailOtp(formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.auth.verifyOtp({ email: email.data, token: token.data, type: "email" });
   if (error) redirect(buildLoginPath({ error: LOGIN_ERROR_CODES.otp, sent: true, email: email.data, next }));
+  await markAuthChanged();
 
   const user = await getSessionUser();
   if (user && isNewAccount(await getAccountCreatedAt(user.id))) {

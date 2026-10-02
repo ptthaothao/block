@@ -6,6 +6,7 @@ import { QueryProvider } from "@/components/providers/query-provider";
 import { ToastProvider } from "@/components/providers/toast-provider";
 import { fontVariables } from "@/config/fonts";
 import { SITE } from "@/config/site";
+import { SessionSync } from "@/features/auth/components/session-sync";
 import { siteUrl } from "@/lib/env";
 import { cn } from "@/lib/utils/cn";
 
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       {/* Browser extensions (e.g. ColorZilla's cz-shortcut-listen) add attributes to <body> before hydration. Only body's own attributes are exempt; children are still checked. */}
       <body className="flex min-h-full flex-col font-sans" suppressHydrationWarning>
         <QueryProvider>
+          <SessionSync />
           <ToastProvider>{children}</ToastProvider>
         </QueryProvider>
         <Analytics />

@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { Input, Label } from "@/components/ui/input";
 
 import { requestPasswordReset } from "../actions";
@@ -18,9 +18,9 @@ export function ForgotPasswordForm({ next }: { next: string }) {
         autoFocus
         placeholder="ban@example.com"
       />
-      <Button type="submit" size="lg" fullWidth>
+      <SubmitButton size="lg" fullWidth>
         {LOGIN_COPY.forgotPasswordSubmit}
-      </Button>
+      </SubmitButton>
     </form>
   );
 }

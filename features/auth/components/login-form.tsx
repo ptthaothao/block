@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { Divider } from "@/components/ui/divider";
 import { Input, Label } from "@/components/ui/input";
 import { Tabs } from "@/components/ui/tabs";
@@ -32,9 +32,9 @@ export function LoginForm({ next, sentToEmail }: { next: string; sentToEmail?: s
 
       <form action={signInWithGitHub} className="mt-6">
         <input type="hidden" name={LOGIN_FORM_FIELDS.next} value={next} />
-        <Button type="submit" variant="inverted" size="lg" fullWidth>
+        <SubmitButton variant="inverted" size="lg" fullWidth>
           Tiếp tục với GitHub
-        </Button>
+        </SubmitButton>
       </form>
 
       <Divider label="hoặc" />
@@ -65,9 +65,9 @@ export function LoginForm({ next, sentToEmail }: { next: string; sentToEmail?: s
             autoComplete="current-password"
             placeholder={LOGIN_COPY.passwordPlaceholder}
           />
-          <Button type="submit" size="lg" fullWidth>
+          <SubmitButton size="lg" fullWidth>
             {LOGIN_COPY.signInSubmit}
-          </Button>
+          </SubmitButton>
         </form>
       ) : (
         <form action={signUpWithEmail} className="space-y-3">
@@ -81,9 +81,9 @@ export function LoginForm({ next, sentToEmail }: { next: string; sentToEmail?: s
             autoComplete="email"
             placeholder="ban@example.com"
           />
-          <Button type="submit" size="lg" fullWidth>
+          <SubmitButton size="lg" fullWidth>
             {LOGIN_COPY.signUpSubmit}
-          </Button>
+          </SubmitButton>
         </form>
       )}
     </>
